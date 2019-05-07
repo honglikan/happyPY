@@ -1,0 +1,43 @@
+{% load staticfiles %}
+{% extends 'base.html' %}
+{%block title%}网络运维工具集{%endblock%}
+{%block content%}
+<!--Page Header-->
+<section class="page_header padding-top">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12 page-content">
+				<h1>网络运维工具集展示</h1>
+				<p></p>
+				<div class="page_nav">
+					<span>当前位置:</span>
+					<a href="../hlPY/templates/home.html">首页</a> <span><i class="fa fa-angle-double-right"></i>作品展示<i class="fa fa-angle-double-right"></i>自制工具展示</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<!--Page Header-->
+
+<!-- Tools -->
+<section id="course_all" class="padding-bottom">
+	<div class="container">
+		<div class="row">
+            {% for tool in tools %}
+			<div class="col-sm-6 col-md-4">
+				<div class="course margin_top wow fadeIn" data-wow-delay="400ms">
+					<div class="image bottom25">
+						<img src="{% static 'img/courses1.jpg' %}" alt="Course" class="border_radius">
+					</div>
+					<h3 class="bottom10"><a href="{% static 'course_detail.html' %}">{{ tool.tool_name }}</a></h3>
+					<p class="bottom20">{{ tool.tool_describe }}</p>
+					<a class="btn_common yellow border_radius" href="course_detail.html">下载</a>
+				</div>
+			</div>
+
+            {% endfor %}
+		</div>
+	</div>
+</section>
+<!-- Tools -->
+{%endblock%}

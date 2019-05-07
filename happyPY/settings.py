@@ -120,5 +120,5 @@ USE_TZ = True
 
 STATIC_URL = '/statics/'
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR,  '/hlPY/statics'),
+    os.path.join(BASE_DIR,  'hlPY/statics'),
 )
