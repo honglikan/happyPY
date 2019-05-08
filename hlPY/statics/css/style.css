@@ -753,7 +753,7 @@ p.hours a{
 
 /*Star  rating*/
 form.star_rating .stars {
-  background: url("../images/star.png") repeat-x 0 0;
+  background: url("../img/star.png") repeat-x 0 0;
   width:112px;
   margin:0;
 }
@@ -826,7 +826,7 @@ form.star_rating .stars span{
   top: 0;
   left: 0;
   height:20px;
-  background: url("../images/star.png") repeat-x 0 -44px;
+  background: url("../img/star.png") repeat-x 0 -44px;
   -webkit-transition: -webkit-width 0.5s;
   -moz-transition: -moz-width 0.5s;
   -ms-transition: -ms-width 0.5s;
@@ -1530,11 +1530,11 @@ body.pushmenu-push-toright .wrap-sticky nav.navbar.bootsnav.sticked{
 }
 #review_slider{ position:relative;}
 #review_slider:before{
-	content:url(../images/quoteLeft.png);
+	content:url(../img/quoteLeft.png);
 	left:0;
 }
 #review_slider:after{
-	content:url(../images/quoteRight.png);
+	content:url(../img/quoteRight.png);
 	right:0; 
 }
 #review_slider:before, #review_slider:after{
@@ -1588,7 +1588,7 @@ body.pushmenu-push-toright .wrap-sticky nav.navbar.bootsnav.sticked{
 }
 
 #text_rotator_parent{
-  background:url(../images/text-rotator.jpg) no-repeat;
+  background:url(../img/text-rotator.jpg) no-repeat;
   width:100%;
   background-position:center center;
   background-size:cover;
@@ -1771,17 +1771,17 @@ body.pushmenu-push-toright .wrap-sticky nav.navbar.bootsnav.sticked{
 
 /* ----- Paralax  ----- */
 #parallax{
-	background:url(../images/parallax2.jpg) no-repeat;
+	background:url('../img/parallax2.jpg') no-repeat;
 	padding:10% 0;
 }
 #courses{
-	background:url(../images/parallax1.jpg) no-repeat;
+	background:url("../img/parallax1.jpg") no-repeat;
 }
 .page_header{
-	background:url(../images/page-tittle.jpg) no-repeat;
+	background:url('../img/page-tittle.jpg') no-repeat;
 }
 #counter{
-	background:url(../images/counter.jpg) no-repeat;
+	background:url('../img/counter.jpg') no-repeat;
 }
 #courses , #parallax, .page_header, #counter{
 	background-size:cover;
@@ -1821,8 +1821,8 @@ body.pushmenu-push-toright .wrap-sticky nav.navbar.bootsnav.sticked{
 	text-align:left;
 	
 	display: -webkit-flex;
-	display:-moz-display;
-	display:-o-display;
+	display: -moz-display;
+	display: -o-display;
 	display: flex;
 	-webkit-flex-direction: column;
 	-ms-flex-direction: column;

@@ -46,8 +46,8 @@
         data-mask_in="x:0px;y:0px;s:inherit;e:inherit;"
         data-mask_out="x:0;y:0;s:inherit;e:inherit;"
         data-start="2000">
-        <a href="login.html" class="border_radius btn_common white_border">登录</a>
-        <a href="resign.html" class="border_radius btn_common blue">立刻体验</a>
+        <a href="{% url 'login' %}" class="border_radius btn_common white_border">登录</a>
+        <a href="{% url 'register' %}" class="border_radius btn_common blue">注册</a>
         </div>
       </li>
 
@@ -85,7 +85,8 @@
         data-mask_in="x:0px;y:0px;s:inherit;e:inherit;"
         data-mask_out="x:0;y:0;s:inherit;e:inherit;"
         data-start="2000">
-        <a href="login.html" class="border_radius btn_common white_border">登录</a>
+        <a href="{% url 'login' %}" class="border_radius btn_common white_border">登录</a>
+        <a href="{% url 'register' %}" class="border_radius btn_common blue">注册</a>
         </div>
       </li>
     </ul>
@@ -211,7 +212,7 @@
     <div class="row">
       <div class="col-md-4 col-sm-4 footer_panel bottom25">
         <h3 class="heading bottom25">关于我们<span class="divider-left"></span></h3>
-        <a href="index.html" class="footer_logo bottom25"><img src="images/logo-white.png" alt="Edua"></a>
+        <a href="index.html" class="footer_logo bottom25"><img src="{% static 'img/logo-white.png' %}" alt="Edua"></a>
         <p>快乐学Python致力于。。。。</p>
         <ul class="social_icon top25">
           <li><a href="https://wx.qq.com/" class="wechat" target="_blank"><i class="fa fa-wechat"></i></a></li>
