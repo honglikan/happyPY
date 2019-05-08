@@ -16,11 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from hlPY import views
+from hlPY.viewsall import login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(r'',views.home,name='home'),
-    path('login/',views.login,name='login'),
+    path('login/',login.login,name='login'),
     path('register/',views.register,name='register'),
     path('ide/',views.ide,name='ide'),
 ]
