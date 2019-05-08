@@ -1183,7 +1183,7 @@ nav.navbar.bootsnav.navbar-fixed.no-background  #menu_bars{ margin-top:20px;}
   transform: translateY(-5px) rotate(-135deg);
 }
 #menu_bars span{
-  background: #000;
+  background: #fff;
   display: block;
   height:3px;
   width:20px;
@@ -2695,7 +2695,7 @@ nav.bootsnav .megamenu-content .title{
 nav.navbar.bootsnav.navbar-fixed.no-background #menu_bars span{
 	background:#0f0f0f;
 }
-nav.navbar.bootsnav.navbar-fixed.no-background #menu_bars span{ background:#000;}
+nav.navbar.bootsnav.navbar-fixed.no-background #menu_bars span{ background:#000000;}
 nav.navbar.bootsnav.navbar-fixed.no-background #menu_bars,
 nav.navbar.bootsnav #menu_bars{
   margin-top: 8px;

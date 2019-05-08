@@ -18,7 +18,8 @@
 		<link rel="stylesheet" type="text/css" href='{% static "css/bootsnav.css" %}'>
 		<link rel="stylesheet" type="text/css" href='{% static "css/style.css" %}'>
 		<link rel="stylesheet" type="text/css" href='{% static "css/loader.css" %}'>
-
+        <link rel="stylesheet" type="text/css" href="{% static 'css/shCore.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/shCoreDefault.css' %}">
 		<link rel="icon" href="{% static 'img/favicon.png' %}">
 
 		<!--[if lt IE 9]>
@@ -59,7 +60,7 @@
 								</ul>
 							</li>
 							<li class="dropdown">
-								<a href="ide.html">编程环境</a>
+								<a href="{% url 'ide' %}">编程环境</a>
 							</li>
 							<li class="dropdown">
 								<a href="tool_display.html" class="dropdown-toggle" data-toggle="dropdown">网络运维工具集</a>
@@ -111,7 +112,10 @@
 		<script src='{% static "js/revolution.extension.video.min.js" %}'></script>
 		<script src='{% static "js/wow.min.js" %}'></script>
 		<script src='{% static "js/functions.js" %}'></script>
-
+        <script type="text/javascript" src="{% static 'js/XRegExp.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/shCore.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/shBrushPython.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/sytanx.js' %}"></script>
 	</body>
 
 </html>

@@ -10,3 +10,6 @@ def login(request):
 
 def register(request):
     pass
+
+def ide(request):
+    return render(request,'ide.html',locals())
