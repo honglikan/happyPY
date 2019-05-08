@@ -67,3 +67,7 @@ def register(request):
         insert_database.save()
         return HttpResponseRedirect("/login")
     return render(request,'login/register.html')
+
+
+def ide(request):
+    return render(request, 'ide.html', locals())

@@ -19,5 +19,8 @@ from hlPY import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(r'',views.home),
+    path(r'',views.home,name='home'),
+    path('login/',views.login,name='login'),
+    path('register/',views.register,name='register'),
+    path('ide/',views.ide,name='ide'),
 ]
