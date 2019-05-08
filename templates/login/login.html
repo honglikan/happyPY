@@ -1,0 +1,33 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>快乐学python登录页面</title>
+<link rel="stylesheet" type="text/css" href="{% static "css/styleDenglu.css" %}">
+</head>
+<script src="{% static "js/jquery-1.12.4.min.js"%}" type="text/javascript" charset="utf-8"></script>
+	<script src="{% static "js/register.js"%}"></script>
+<body>
+    <header>
+	<a href="#" class="logo"></a>
+	<div class="desc">登录</div>
+</header>
+<form action="index.html">
+		<div class="register-box">
+			<label >用 户 名
+			<input maxlength="20" type="text" placeholder="您的用户名和登录名">
+					</label>
+		</div>
+		<div class="register-box">
+            <label >密    &nbsp; &nbsp; 码
+			<input maxlength="20" type="text" placeholder="密码">
+					</label>
+		</div>
+		<div class="submit_btn">
+			<button type="submit" id="login_submit_btn">登   录</button>
+			<a href="{% url 'register' %}">立即注册？</a>
+		</div>
+    </form>
+  </body>
+</html>
