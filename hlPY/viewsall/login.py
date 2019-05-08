@@ -26,11 +26,12 @@ def login(request):
         user = user_info.objects.get(username=username)
         if user and user.password == password:
             auth.login(request, user)
-            last_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            last_time = datetime.datetime.now()
             user_info.objects.filter(username=username).update(last_login=last_time)
             return HttpResponseRedirect("/")
         else:
-            return render(request,"login.html",{"retcode": 1, "stderr": "用户名或密码不正确"})
+            return render(request,"login/login.html",{"retcode": 1, "stderr": "用户名或密码不正确"})
+    return render(request, 'login/login.html')
 
 
 
