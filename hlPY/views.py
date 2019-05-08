@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from hlPY.models import user_info
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.hashers import make_password
 import datetime
 
 def judgeUsername(request):  # 判断注册页面用户名是否重复
@@ -63,7 +64,8 @@ def register(request):
         email = request.POST.get('email')
         sex = request.POST.get('sex')
         age = request.POST.get('age')
-        insert_database = user_info(username=username, password=password, phone=phone, email=email, sex=sex, age=age,last_login=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") ,date_joined=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") )
+        psd = make_password(password)
+        insert_database = user_info(username=username, password=psd, phone=phone, email=email, sex=sex, age=age,last_login=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") ,date_joined=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") )
         insert_database.save()
         return HttpResponseRedirect("/login")
     return render(request,'login/register.html')

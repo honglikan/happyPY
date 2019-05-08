@@ -16,16 +16,16 @@ def login(request):
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
         '''
+               user = user_info.objects.get(username=username)
+               if user and user.password == password:
+                   auth.login(request, user)
+                   last_time = datetime.datetime.now()
+                   user_info.objects.filter(username=username).update(last_login=last_time)
+                   return HttpResponseRedirect("/")
+               '''
         user = authenticate(username=username, password=password)
         if user and user.is_active:
             auth.login(request,user)
-            last_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-            user_info.objects.filter(username=username).update(last_login=last_time)
-            return HttpResponseRedirect("/")
-        '''
-        user = user_info.objects.get(username=username)
-        if user and user.password == password:
-            auth.login(request, user)
             last_time = datetime.datetime.now()
             user_info.objects.filter(username=username).update(last_login=last_time)
             return HttpResponseRedirect("/")
