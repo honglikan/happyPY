@@ -1,43 +1,43 @@
 $(function() {
 	//聚焦失焦input
-	$('input').eq(1).focus(function() {
+	$("input[name='username']").focus(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("支持中文，字母，数字，'-'，'_'的多种组合");
 		}
 	})
-	$('input').eq(2).focus(function() {
+	$("input[name='age']").focus(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("未成年人请由家长注册");
 		}
 		})
-	$('input').eq(3).focus(function() {
+	$("input[name='password']").focus(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("建议使用字母、数字和符号两种以上的组合，6-20个字符");
 		}
 	})
-	$('input').eq(4).focus(function() {
+	$("input[name='password2']").focus(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("请再次输入密码");
 		}
 	})
-	$('input').eq(5).focus(function() {
+	$("input[name='phone']").focus(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("验证完后，该手机将收到最新课程信息");
 		}
 	})
-	$('input').eq(6).focus(function() {
+	$("input[name='email']").focus(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("验证完后，你可以使用该邮箱登陆和找回密码");
 		}
 	})
-	$('input').eq(7).focus(function() {
+	$("input[name='identify']").focus(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next().next("div").text("看不清？点击图片更换验证码");
 		}
 	})
 	//input各种判断
 	//用户名：
-	$('input').eq(1).blur(function() {
+	$("input[name='username']").blur(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("");
 			$(this).parent().next("div").css("color", '#ccc');
@@ -61,7 +61,7 @@ $(function() {
 			
 		
 	})
-	$('input').eq(2).blur(function() {
+	$("input[name='age']").blur(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("");
 			$(this).parent().next("div").css("color", '#ccc');
@@ -73,7 +73,7 @@ $(function() {
 		}
 	})
 	//密码
-	$('input').eq(3).blur(function() {
+	$("input[name='password']").blur(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("");
 			$(this).parent().next("div").css("color", '#ccc');
@@ -85,11 +85,11 @@ $(function() {
 		}
 	})
 	//	确认密码
-	$('input').eq(4).blur(function() {
+	$("input[name='password2']").blur(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("");
 			$(this).parent().next("div").css("color", '#ccc');
-		} else if($(this).val() != $('input').eq(3).val()) {
+		} else if($(this).val() != $("input[name='password']").val()) {
 			$(this).parent().next("div").text("两次密码不匹配");
 			$(this).parent().next("div").css("color", 'red');
 		} else {
@@ -97,7 +97,7 @@ $(function() {
 		}
 	})
 	//	手机号
-	$('input').eq(5).blur(function() {
+	$("input[name='phone']").blur(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("");
 			$(this).parent().next("div").css("color", '#ccc');
@@ -108,7 +108,7 @@ $(function() {
 			$(this).parent().next("div").text("");
 		}
 	})
-	$('input').eq(6).blur(function() {
+	$("input[name='email']").blur(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next("div").text("");
 			$(this).parent().next("div").css("color", '#ccc');
@@ -133,7 +133,7 @@ $(function() {
 	code();
 	$("#code").click(code);
 	//	验证码验证
-	$('input').eq(7).blur(function() {
+	$("input[name='identify']").blur(function() {
 		if($(this).val().length == 0) {
 			$(this).parent().next().next("div").text("");
 			$(this).parent().next().next("div").css("color", '#ccc');
@@ -156,7 +156,8 @@ $(function() {
 				}
 				$('input').eq(j).parent().next(".tips").text("此处不能为空");
 				$('input').eq(j).parent().next(".tips").css("color", 'red');
-				return;
+				// return;
+
 			}
 		}
 		//协议
@@ -173,5 +174,17 @@ $(function() {
 			return;
 		}
 	})
+	// function registerState() {
+	// 	$.ajax({
+	// 		url:"/",
+	// 		type:"post",
+	// 		dataType:"html",
+	// 		async:false,
+	// 		success:function (result) {
+	// 			alert("注册成功！")
+	// 		}
+	// 	});
+	//
+	// }
 
 })
