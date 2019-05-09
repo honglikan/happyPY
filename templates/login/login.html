@@ -13,16 +13,16 @@
 	<a href="#" class="logo"></a>
 	<div class="desc">登录</div>
 </header>
-<form action="" method="post">
+<form method="post">
         {% csrf_token %}
 		<div class="register-box">
 			<label >用 户 名
-			<input maxlength="20" type="text" placeholder="您的用户名和登录名">
+			<input maxlength="20" name="username" type="text" placeholder="您的用户名和登录名">
 					</label>
 		</div>
 		<div class="register-box">
             <label >密   码
-			<input maxlength="20" type="password" placeholder="密码">
+			<input maxlength="20" name="password" type="password" placeholder="密码">
 					</label>
 		</div>
         <div class="register-box">
