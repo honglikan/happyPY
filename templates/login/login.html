@@ -3,9 +3,8 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>快乐学python登录页面</title>
+<title>登录页面</title>
 <link rel="stylesheet" type="text/css" href="{% static "css/styleDenglu.css" %}">
-    <link rel="stylesheet" type="text/css" href='{% static "css/bootstrap.min.css" %}'>
 </head>
 <script src="{% static "js/jquery-1.12.4.min.js"%}" type="text/javascript" charset="utf-8"></script>
 	<script src="{% static "js/register.js"%}"></script>
@@ -15,20 +14,20 @@
 	<div class="desc">登录</div>
 </header>
 <form action="" method="post">
-    {% csrf_token %}
+        {% csrf_token %}
 		<div class="register-box">
 			<label >用 户 名
-			<input maxlength="20" name="username" type="text" placeholder="您的用户名和登录名">
+			<input maxlength="20" type="text" placeholder="您的用户名和登录名">
 					</label>
 		</div>
 		<div class="register-box">
-            <label >密    &nbsp; &nbsp; 码
-			<input maxlength="20" name="password" type="password" placeholder="密码">
+            <label >密   码
+			<input maxlength="20" type="password" placeholder="密码">
 					</label>
 		</div>
-    <div class="register-box">
+        <div class="register-box">
 				<label for="username" class="other_label">验 证 码
-			<input maxlength="20" type="text" placeholder="请输入验证码">
+			<input maxlength="20" name="identify" type="text" placeholder="请输入验证码">
 			</label>
 				<span id="code"></span>
 				<div class="tips">
