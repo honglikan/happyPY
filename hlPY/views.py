@@ -1,11 +1,11 @@
-from django.shortcuts import render
-# Create your views here.
-#import hlPY.viewsall.login
+#-*- coding:utf8 -*-
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from hlPY.models import user_info
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
+from django.contrib import auth
+from django.contrib.auth import authenticate
 import datetime
 
 def judgeUsername(request):  # 判断注册页面用户名是否重复
@@ -51,8 +51,37 @@ def home(request):
     return render(request, 'home.html', locals())
 
 
+'''登录函数，验证用户用户名和密码是否正确，如果正确，跳转到主页，如果不正确，则还停在登录页，并返回错误信息'''
+@csrf_exempt
 def login(request):
-    return render(request, 'login/login.html', locals())
+    #redirect_to = request.REQUEST.get('next', '')
+    if request.method == 'POST':
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        '''
+               user = user_info.objects.get(username=username)
+               if user and user.password == password:
+                   auth.login(request, user)
+                   last_time = datetime.datetime.now()
+                   user_info.objects.filter(username=username).update(last_login=last_time)
+                   return HttpResponseRedirect("/")
+               '''
+        try:
+            user = authenticate(username=username, password=password)
+            if user and user.is_active:
+                auth.login(request,user)
+                '''从数据库中取出该用户的信息'''
+                User = user_info.objects.get(username=username)
+                '''将用户信息存入session中，为后续函数识别用户是否为登录状态做准备'''
+                request.session['user'] = User
+                last_time = datetime.datetime.now()
+                user_info.objects.filter(username=username).update(last_login=last_time)
+                return HttpResponseRedirect("/")
+            else:
+                return render(request,"login/login.html",{"eror": "用户名或密码错误"})
+        except user_info.DoesNotExist:
+            pass
+    return render(request, 'login/login.html')
 
 
 @csrf_exempt
