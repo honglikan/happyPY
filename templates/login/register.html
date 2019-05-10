@@ -2,100 +2,114 @@
 <!DOCTYPE html>
 <html>
 
-	<head>
-		<meta charset="utf-8" />
-		<title>快乐学python注册页面</title>
-		<link rel="stylesheet" type="text/css" href="{% static "css/styleDenglu.css" %}">
-        <link rel="stylesheet" type="text/css" href='{% static "css/bootstrap.min.css" %}'>
-	</head>
-	<script src="{% static "js/jquery-1.12.4.min.js"%}" type="text/javascript" charset="utf-8"></script>
-	<script src="{% static "js/register.js"%}"></script>
+<head>
+    <meta charset="utf-8"/>
+    <title>快乐学python注册页面</title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/styleDenglu.css" %}">
+    <link rel="stylesheet" type="text/css" href='{% static "css/bootstrap.min.css" %}'>
+</head>
+<script src="{% static "js/jquery-1.12.4.min.js" %}" type="text/javascript" charset="utf-8"></script>
+<script src="{% static "js/register.js" %}"></script>
 
-	<body>
-		<header>
-			<a href="#" class="logo"></a>
-			<div class="desc">欢迎注册</div>
-		</header>
-		<form action="" method="post">
-            {% csrf_token %}
-			<div class="register-box">
-				<label for="username" class="username_label">用 户 名
-			<input maxlength="20" name="username" type="text" placeholder="您的用户名和登录名">
-					</label>
-				<div class="tips">
-				</div>
-			</div>
-            <div class="register-box">
-				<label for="sex" >性别
-                <select name="sex" >
-                    <option value="男">男</option>
-                    <option value="女">女</option>
-                </select>
-                </label>
-                <label for="sex" >年龄
-			<input maxlength="10" name="age" type="text" placeholder="请输入年龄">
-				</label>
-				<div class="tips">
-				</div>
-			</div>
+<body>
+<header>
+    <a href="#" class="logo"></a>
+    <div class="desc">欢迎注册</div>
+</header>
+<form action="" id="form1" method="post">
+    {% csrf_token %}
+    <div class="register-box">
+        <label for="username" class="username_label">用 户 名
+            <input maxlength="20" name="username" type="text" placeholder="您的用户名和登录名">
+        </label>
+        <div class="tips">
 
-			<div class="register-box">
-				<label for="username" class="other_label">设 置 密 码
-			<input maxlength="20" name="password" type="password" placeholder="建议至少使用两种字符组合">
-			</label>
-				<div class="tips">
+        </div>
+    </div>
+    <div class="register-box">
+        <label for="sex">性别
+            <select name="sex">
+                <option value="男">男</option>
+                <option value="女">女</option>
+            </select>
+        </label>
+        <label for="sex">年龄
+            <input maxlength="10" name="age" type="text" placeholder="请输入年龄">
+        </label>
+        <div class="tips">
 
-				</div>
-			</div>
-			<div class="register-box">
-				<label for="username" class="other_label">确 认 密 码
-			<input maxlength="20" name="password2" type="password" placeholder="请再次输入密码">
-			</label>
-				<div class="tips">
+        </div>
+    </div>
 
-				</div>
-			</div>
-			<div class="register-box">
-				<label for="username" class="other_label">
-			<span>中国 0086∨</span>
-			<input class="phone" name="phone" maxlength="20" type="text" placeholder="建议使用常用手机">
-			</label>
-				<div class="tips">
+    <div class="register-box">
+        <label for="username" class="other_label">设 置 密 码
+            <input maxlength="20" name="password" type="password" placeholder="建议至少使用两种字符组合">
+        </label>
+        <div class="tips">
 
-				</div>
-			</div>
-            <div class="register-box">
-				<label for="username" class="other_label">
-			<span>邮箱</span>
-			<input class="phone" name="email" maxlength="20" type="text" placeholder="建议使用常用邮箱">
-			</label>
-				<div class="tips">
+        </div>
+    </div>
+    <div class="register-box">
+        <label for="username" class="other_label">确 认 密 码
+            <input maxlength="20" name="password2" type="password" placeholder="请再次输入密码">
+        </label>
+        <div class="tips">
 
-				</div>
-			</div>
-			<div class="register-box">
-				<label for="username" class="other_label">验 证 码
-			<input maxlength="20" name="identify" type="text" placeholder="请输入验证码">
-			</label>
-				<span id="code"></span>
-				<div class="tips">
-				</div>
-			</div>
-			<div class="arguement">
-				<input type="checkbox" id="xieyi"> 阅读并同意
-				<a href="#">《快乐学python用户注册协议》</a>
-				<a href="#">《隐私政策》</a>
-				<div class="tips">
+        </div>
+    </div>
+    <div class="register-box">
+        <label for="username" class="other_label">
+            <span>中国 0086∨</span>
+            <input class="phone" name="phone" maxlength="20" type="text" placeholder="建议使用常用手机">
+        </label>
+        <div class="tips">
 
-				</div>
-			</div>
-			<div class="submit_btn">
-				<button type="submit" id="submit_btn">立 即 注 册</button>
-			</div>
-		</form>
-		<div style="text-align:center;margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';">
-			<p>适用浏览器：360、FireFox、Chrome、Safari、Opera、傲游、搜狗、世界之窗. 不支持IE8及以下浏览器。</p>
-		</div>
-	</body>
+        </div>
+    </div>
+    <div class="register-box">
+        <label for="username" class="other_label">
+            <span>邮箱</span>
+            <input class="phone" name="email" maxlength="20" type="text" placeholder="建议使用常用邮箱">
+        </label>
+        <div class="tips">
+
+        </div>
+    </div>
+    <div class="register-box">
+        <label for="username" class="other_label">验 证 码
+            <input maxlength="20" name="identify" type="text" placeholder="请输入验证码">
+        </label>
+        <span id="code"></span>
+        <div class="tips">
+        </div>
+    </div>
+    <div class="arguement">
+        <input type="checkbox" id="xieyi"> 阅读并同意
+        <a href="#">《快乐学python用户注册协议》</a>
+        <a href="#">《隐私政策》</a>
+        <div class="tips">
+
+        </div>
+    </div>
+    <div class="submit_btn">
+        <button type="submit" id="submit_btn" onclick="register()">立 即 注 册</button>
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        {% if success %}
+           <script language="javascript" type="text/javascript">
+                alert("注册成功");
+                window.location.href="{% url 'login' %}";
+           </script>
+        {% endif %}
+    </div>
+    <div class="tips">
+
+    </div>
+</form>
+<div style="text-align:center;margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';">
+
+</div>
+</body>
 
 </html>

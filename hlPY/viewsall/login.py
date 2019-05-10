@@ -23,18 +23,22 @@ def login(request):
                    user_info.objects.filter(username=username).update(last_login=last_time)
                    return HttpResponseRedirect("/")
                '''
-        user = authenticate(username=username, password=password)
-        if user and user.is_active:
-            auth.login(request,user)
-            last_time = datetime.datetime.now()
-            user_info.objects.filter(username=username).update(last_login=last_time)
-            return HttpResponseRedirect("/")
-        else:
-            return render(request,"login/login.html",{"retcode": 1, "stderr": "用户名或密码不正确"})
+        try:
+            user = authenticate(username=username, password=password)
+            if user and user.is_active:
+                auth.login(request,user)
+                '''从数据库中取出该用户的信息'''
+                User = user_info.objects.get(username=username)
+                '''将用户信息存入session中，为后续函数识别用户是否为登录状态做准备'''
+                request.session['user'] = User
+                last_time = datetime.datetime.now()
+                user_info.objects.filter(username=username).update(last_login=last_time)
+                return HttpResponseRedirect("/")
+            else:
+                return render(request,"login/login.html",{"eror": "用户名或密码错误"})
+        except user_info.DoesNotExist:
+            pass
     return render(request, 'login/login.html')
-
-
-
 
 
 
