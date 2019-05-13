@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block css %}
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Free Bootstrap Admin Template : Dream</title>
+    <!-- Bootstrap Styles-->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet"/>
+    <!-- FontAwesome Styles-->
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet"/>
+    <!-- Custom Styles-->
+    <link href="{% static 'css/custom-styles.css' %}" rel="stylesheet"/>
+    <!-- Google Fonts-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <link href="{% static 'css/editor/style.css' %}" rel='stylesheet' type='text/css'/>
+    <link href="{% static 'css/editor/editormd.css' %}" rel='stylesheet' type='text/css'/>
+
+{% endblock %}
+{% block content %}
+    <div id="wrapper">
+
+        <!--/. NAV TOP  -->
+        <nav class="navbar-default navbar-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav" id="main-menu">
+                    <li>
+                        < a href=""></a>
+                    </li>
+                    <li>
+                        < a href=""></a>
+                    </li>
+                    <li>
+                        < a href=""></a>
+                    </li>
+                    {% for i in classname %}
+                        <li>
+                            < a href=" "><i class="fa fa-sitemap"></i>{{ i }}<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                {% for j in chaptername %}
+                                    <li>
+                                        < a href="#">1234567</a>
+                                    </li>
+
+                                {% endfor %}
+                            </ul>
+
+
+                        </li>
+                    {% endfor %}
+
+                </ul>
+
+            </div>
+
+        </nav>
+        <!-- /. NAV SIDE  -->
+        <div id="page-wrapper">
+            <div id="page-inner">
+
+                <div class="row">
+
+                    <div class="col-md-12">
+
+
+                            <!--  Modals-->
+                        <div class="panel panel-default" style="height: 600px">
+                            <div class="panel-body" style="overflow-y: auto; height: 500px;">
+                                <div class="alert alert-success">
+                                    <strong>Well done!</strong> You successfully read this important alert message.
+                                </div>
+                                <div class="alert alert-success">
+                                    <strong>Well done!</strong> You successfully read this important alert message.
+                                </div>
+                            </div>
+
+                            <div class="panel-body">
+                                <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                                    查看提示
+                                </button>
+                                <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                                    下一个
+                                </button>
+                            </div>
+
+                        <!-- End Modals-->
+                        </div>
+                        <div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-12">
+
+                        <!--  code area-->
+                        <div class="panel panel-default">
+
+
+                            <div id="layout">
+
+                                <div id="test-editormd">
+                                    <textarea style="display:none;"></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- End code area-->
+                    </div>
+                </div>
+                <!-- /. PAGE INNER  -->
+            </div>
+            <!-- /. PAGE WRAPPER  -->
+        </div>
+        <!-- /. WRAPPER  -->
+    </div>
+    <!-- JS Scripts-->
+    <!-- jQuery Js -->
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'js/jquery-2.2.3.js' %}"></script>
+    <!-- Bootstrap Js -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- Metis Menu Js -->
+
+    <!-- Custom Js -->
+    {#    <script src="{% static 'js/custom-scripts.js' %}"></script>#}
+    <script src="{% static 'js/editor/editormd.js' %}"></script>
+    <script type="text/javascript">
+        var testEditor;
+
+        function getCodeValue() {
+            return (localStorage.modeName) ? $("#" + localStorage.modeName.replace("text/", "").replace("c/c++", "cpp") + "-code").val() : $("#html-code").val();
+        }
+
+        $(function () {
+            testEditor = editormd("test-editormd", {
+                width: "90%",
+                height: 720,
+                watch: false,
+                toolbar: false,
+                codeFold: true,
+                searchReplace: true,
+                placeholder: "Enjoy coding!",
+                value: getCodeValue(),
+                theme: (localStorage.theme) ? localStorage.theme : "default",
+                mode: (localStorage.mode) ? localStorage.mode : "python",
+                path: "{% static 'lib/' %}"
+            });
+
+            $("#get-code-btn").bind("click", function () {
+                alert(testEditor.getValue());
+            });
+
+            $("#fullscreen-btn").bind("click", function () {
+                testEditor.fullscreen();
+            });
+
+            var select = $("#themes");
+
+            for (var i = 0, len = editormd.themes.length; i < len; i++) {
+                var theme = editormd.themes[i];
+                var selected = (localStorage.theme == theme) ? " selected=\"selected\"" : "";
+                select.append("<option value=\"" + theme + "\"" + selected + ">" + theme + "</option>");
+            }
+
+            select.change(function () {
+                var theme = $(this).val();
+
+                if (theme == "") {
+                    alert("theme == \"\"");
+                    return false;
+                }
+
+                localStorage.theme = theme;
+                testEditor.setTheme(theme);
+            });
+
+            var modesSelect = $("#modes");
+            var modeNames = ["python"];
+            var modes = ["python"];
+
+
+            var mode = modes[0];
+            var selected = (localStorage.modeName == modeNames[0]) ? " selected=\"selected\"" : "";
+            modesSelect.append("<option value=\"" + mode + "\"" + selected + " name=\"" + modeNames[0] + "\"" + selected + ">" + modeNames[0] + "</option>");
+
+            modesSelect.change(function () {
+                var mode = $(this).val();
+                var modeName = $(this).find("option:selected").attr("name");
+
+                if (mode == "") {
+                    alert("mode == \"\"");
+                    return false;
+                }
+
+                localStorage.mode = mode;
+                localStorage.modeName = modeName;
+
+                var code = getCodeValue();
+
+                testEditor.setCodeMirrorOption("mode", mode);
+                //testEditor.setCodeMirrorOption("value", code);
+                testEditor.setValue(code);
+            });
+        });
+    </script>
+
+{% endblock %}

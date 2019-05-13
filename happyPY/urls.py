@@ -25,6 +25,6 @@ urlpatterns = [
     path('register/',views.register,name='register'),
     path('ide/',views.ide,name='ide'),
     path('testcode/',views.testcode,name='testcode'),
-    path('idetest/',views.idetest,name='idetest'),
+    path('learn/',views.learn,name='learn'),
     path('user_page/', views.user_page, name='user_page'),
 ]
