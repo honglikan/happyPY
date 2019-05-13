@@ -1,8 +1,159 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% block css %}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Free Bootstrap Admin Template : Dream</title>
+   <!-- Bootstrap Styles-->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+     <!-- FontAwesome Styles-->
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet" />
+        <!-- Custom Styles-->
 
-{% block title %}IDE{% endblock %}
-{% block content %}
-    <textarea rows="10" cols="20"></textarea>
+     <!-- Google Fonts-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+    <link href="{% static 'css/editor/style.css' %}" rel='stylesheet' type='text/css' />
+    <link href="{% static 'css/editor/editormd.css' %}" rel='stylesheet' type='text/css' />
+
+{% endblock %}
+{%  block content %}
+
+
+                  <!--  code area-->
+                    <div class="panel panel-default" >
+
+
+
+                           <div >
+
+            <div id="test-editormd" style="margin-top: 100px;">
+                <textarea style="display:none;"></textarea>
+            </div>
+        </div>
+            <button id="clear" name="clear" >清空</button>
+                        <button id="submit" name="submit">提交</button>
+                    </div>
+                     <!-- End code area-->
+
+    <div>
+    <textarea id="result" style="width: 1240px;height: 130px;border-color: #d7d4f0;color: #8d8687;" readonly>运行结果</textarea>
+    </div>
+         </div>
+            </div>
+             <!-- /. PAGE INNER  -->
+
+    <!-- JS Scripts-->
+    <!-- jQuery Js -->
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'js/jquery-2.2.3.js' %}"></script>
+      <!-- Bootstrap Js -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- Metis Menu Js -->
+
+      <!-- Custom Js -->
+{#    <script src="{% static 'js/custom-scripts.js' %}"></script>#}
+    <script src="{% static 'js/editor/editormd.js' %}"></script>
+
+    <script type="text/javascript">
+            var testEditor;
+
+            function getCodeValue() {
+                return (localStorage.modeName) ? $("#"+localStorage.modeName.replace("text/", "").replace("c/c++", "cpp")+"-code").val() : $("#html-code").val();
+            }
+
+            $(function() {
+                testEditor = editormd("test-editormd", {
+                    width            : "90%",
+                    height           : 720,
+                    watch            : false,
+                    toolbar          : false,
+                    codeFold         : true,
+                    searchReplace    : true,
+                    placeholder      : "Enjoy coding!",
+                    value            : getCodeValue(),
+                    theme            : (localStorage.theme) ? localStorage.theme : "default",
+                    mode             : (localStorage.mode) ? localStorage.mode : "python",
+                    path             : "{% static 'lib/' %}"
+                });
+
+                $("#clear").bind("click", function() {
+                    testEditor.setValue('');
+                });
+
+                $("#submit").bind("click", function() {
+                    var postData={'code':testEditor.getValue()};
+                    $.ajax({
+                        async:false,
+                        cache:false,
+                        type:'POST',
+                        url: "{% url 'testcode' %}",
+                        dataType:"json",
+                        data:postData,
+                        error:function () {
+                            alert('请求失败');
+                        },
+                        success:function (data) {
+                            $("#result").val(data.output)
+                        }
+                    });
+
+                    alert(testEditor.getValue());
+
+                });
+
+                var select = $("#themes");
+
+                for (var i = 0, len = editormd.themes.length; i < len; i ++)
+                {
+                    var theme    = editormd.themes[i];
+                    var selected = (localStorage.theme == theme) ? " selected=\"selected\"" : "";
+                    select.append("<option value=\"" + theme + "\"" + selected + ">" + theme + "</option>");
+                }
+
+                select.change(function(){
+                    var theme = $(this).val();
+
+                    if (theme == "")
+                    {
+                        alert("theme == \"\"");
+                        return false;
+                    }
+
+                    localStorage.theme = theme;
+                    testEditor.setTheme(theme);
+                });
+
+                var modesSelect = $("#modes");
+                var modeNames = ["python"];
+                var modes     = ["python"];
+
+
+                var mode    = modes[0];
+                var selected = (localStorage.modeName == modeNames[0]) ? " selected=\"selected\"" : "";
+                modesSelect.append("<option value=\"" + mode + "\"" + selected + " name=\"" + modeNames[0] + "\"" + selected + ">" + modeNames[0] + "</option>");
+
+                modesSelect.change(function(){
+                    var mode = $(this).val();
+                    var modeName = $(this).find("option:selected").attr("name");
+
+                    if (mode == "")
+                    {
+                        alert("mode == \"\"");
+                        return false;
+                    }
+
+                    localStorage.mode     = mode;
+                    localStorage.modeName = modeName;
+
+                    var code = getCodeValue();
+
+                    testEditor.setCodeMirrorOption("mode", mode);
+                    //testEditor.setCodeMirrorOption("value", code);
+                    testEditor.setValue(code);
+                });
+            });
+        </script>
 
 {% endblock %}
