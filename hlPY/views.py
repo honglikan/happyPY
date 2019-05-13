@@ -90,23 +90,7 @@ def test(request):
 def learn(request):
     return render(request, 'learn.html', locals())
 
-def user_page(request):
-    if request.session["username"]:
-        username = request.session["user"]
-        select_database_username = user_info.objects.filter(username=username)
-        user_id = select_database_username[10]
-        select_database_basic_progress = basic_learn_progress.objects.get(user_id=user_id)
-        select_database_practice_progeress = practice_learn_progress.objects.get(user_id=user_id)
-        select_database_count_basic_course = course_python_basic.objects.values('basic_name').annotate(num=Count('basic_name'))
-        select_database_count_practice_course = course_python_practice.objects.values('practice_name').annotate(num=Count('practice_name'))
-        print(select_database_basic_progress,select_database_practice_progeress,select_database_count_basic_course,select_database_count_practice_course)
-
-        #user_info_display = {"username":username,"sex":select_database_username[12],"email":select_database_username[6],"phone":select_database_username[14],"age":select_database_username[13],"chapter_id":[select_database_basic_userid[3],select_database_practice_userid[3]]}
-        #return user_info_display
-    #else:
-        #return render(request,"login/login.html",locals())
-        return render(request,'home.html',locals())
-
+'''编程环境获取代码函数，要求必须登录的用户才能跳转'''
 @login_required
 @csrf_exempt
 def testcode(request):
