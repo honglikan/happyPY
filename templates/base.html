@@ -18,9 +18,9 @@
 		<link rel="stylesheet" type="text/css" href='{% static "css/bootsnav.css" %}'>
 		<link rel="stylesheet" type="text/css" href='{% static "css/style.css" %}'>
 		<link rel="stylesheet" type="text/css" href='{% static "css/loader.css" %}'>
-        <link rel="stylesheet" type="text/css" href="{% static 'css/shCore.css' %}">
-        <link rel="stylesheet" type="text/css" href="{% static 'css/shCoreDefault.css' %}">
+
 		<link rel="icon" href="{% static 'img/favicon.png' %}">
+        {% block css %}{% endblock %}
 
 		<!--[if lt IE 9]>
   <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -52,10 +52,10 @@
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown">课程</a>
 								<ul class="dropdown-menu">
 									<li>
-										<a href="courses.html">Python基础课程</a>
+										<a href="{% url 'learn'  %}">Python基础课程</a>
 									</li>
 									<li>
-										<a href="course_detail.html">Python实战课程</a>
+										<a href="{% url 'learn' %}">Python实战课程</a>
 									</li>
 								</ul>
 							</li>
@@ -64,6 +64,9 @@
 							</li>
 							<li class="dropdown">
 								<a href="tool_display.html" class="dropdown-toggle" data-toggle="dropdown">网络运维工具集</a>
+							</li>
+                            <li class="dropdown">
+								<a href="{% url 'login' %}" class="dropdown-toggle" data-toggle="dropdown">登录/注册</a>
 							</li>
 						</ul>
 					</div>
@@ -112,10 +115,8 @@
 		<script src='{% static "js/revolution.extension.video.min.js" %}'></script>
 		<script src='{% static "js/wow.min.js" %}'></script>
 		<script src='{% static "js/functions.js" %}'></script>
-        <script type="text/javascript" src="{% static 'js/XRegExp.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/shCore.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/shBrushPython.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/sytanx.js' %}"></script>
-	</body>
+
+	{% block js %}{% endblock %}
+    </body>
 
 </html>
