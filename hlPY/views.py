@@ -84,11 +84,11 @@ def register(request):
 def ide(request):
     return render(request, 'ide.html', locals())
 
-def idetest(request):
-    return render(request, 'idetest.html', locals())
-
 def test(request):
     return render(request, 'test.html', locals())
+
+def learn(request):
+    return render(request, 'learn.html', locals())
 
 def user_page(request):
     if request.session["username"]:

@@ -78,10 +78,13 @@
                     path             : "{% static 'lib/' %}"
                 });
 
+                {#清空代码及代码运行结果的内容#}
                 $("#clear").bind("click", function() {
                     testEditor.setValue('');
+                    $("#result").val('运行结果')
                 });
 
+                {#提交代码执行结果#}
                 $("#submit").bind("click", function() {
                     var postData={'code':testEditor.getValue()};
                     $.ajax({
