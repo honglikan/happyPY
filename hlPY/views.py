@@ -29,6 +29,11 @@ def home(request):
     return render(request, 'home.html', locals())
 
 
+'''工具集页面'''
+def course(request):
+    return render(request, 'course_display.html', locals())
+
+
 '''登录函数，验证用户名和密码是否正确，如果正确，将用户保存在session中'''
 
 

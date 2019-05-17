@@ -63,7 +63,7 @@
                         <a href="{% url 'ide' %}">编程环境</a>
                     </li>
                     <li class="dropdown">
-                        <a href="tool_display.html" class="dropdown-toggle" data-toggle="dropdown">网络运维工具集</a>
+                        <a href="{% url 'course' %}" class="dropdown-toggle" data-toggle="dropdown">网络运维工具集</a>
                     </li>
                     <!-- Django的 if 模板语句 -->
                     {% if user.is_authenticated %}
