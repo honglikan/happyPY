@@ -26,52 +26,39 @@
             <div class="sidebar-collapse">
                 <ul class="nav" id="main-menu">
                     {% for i in basic_info %}
-                        {#                        判断是否为继续学习，如果为继续学习则打开隐藏折行#}
-                        {% if continue_course_id == i.basic_id %}
-                            <li class="active">
-                                {#                                判断是否为继续学习，如果不为继续学习则隐藏折行#}
-                                {% else %}
-                            <li class="">
-                        {% endif %}
-                        <a href=" #" id="{{ i.basic_id }}"><i class="fa fa-sitemap"></i>
-                            {{ i.basic_name }}
-                            {% if i.progress %}
-                                <span class="fa arrow"></span>
-                            {% endif %}
-                        </a>
-                        {#                        判断是否为继续学习，如果为继续学习则打开隐藏折行#}
-                        {% if continue_course_id == i.basic_id %}
+                        <li class="active collapse">
+                            <a href=" #" id="{{ i.basic_id }}"><i class="fa fa-sitemap"></i>
+                                {{ i.basic_name }}
+                                {% if i.progress %}
+                                    <span class="fa arrow"></span>
+                                {% endif %}
+                            </a>
                             <ul class="nav nav-second-level collapse in" style="height:auto">
-                            {#                        判断是否为继续学习，如果不为继续学习则隐藏折行#}
-                        {% else %}
-                            <ul class="nav nav-second-level collapse" style="height:0px">
-                        {% endif %}
+                                {% for j in i.progress %}
+                                    <li>
+                                        {% if j.learn_status == '1' %}
+                                            <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
+                                               name="{{ i.basic_id }}" class="course"
+                                               onclick="getCont(this)">{{ j.basic_chapter_name }}(已完成)</a>
+                                        {% elif j.learn_status == '2' %}
+                                            <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
+                                               name="{{ i.basic_id }}" class="course"
+                                               onclick="getCont(this)">{{ j.basic_chapter_name }}(进行中)</a>
+                                        {% else %}
+                                            <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
+                                               name="{{ i.basic_id }}" class="course"
+                                               onclick="getCont(this)">{{ j.basic_chapter_name }}(未开始)</a>
+                                        {% endif %}
 
-                    {% for j in i.progress %}
-                        <li>
-                            {% if j.learn_status == '1' %}
-                                <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
-                                   name="{{ i.basic_id }}" class="course"
-                                   onclick="getCont(this)">{{ j.basic_chapter_name }}(已完成)</a>
-                            {% elif j.learn_status == '2' %}
-                                <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
-                                   name="{{ i.basic_id }}" class="course"
-                                   onclick="getCont(this)">{{ j.basic_chapter_name }}(进行中)</a>
-                            {% else %}
-                                <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
-                                   name="{{ i.basic_id }}" class="course"
-                                   onclick="getCont(this)">{{ j.basic_chapter_name }}(未开始)</a>
-                            {% endif %}
-
-                        </li>
-                    {% endfor %}
-                    </ul>
+                                    </li>
+                                {% endfor %}
+                            </ul>
 
 
                         </li>
                     {% endfor %}
 
-                    </ul>
+                </ul>
 
             </div>
 
@@ -89,17 +76,10 @@
                         <div class="panel panel-default" style="height: 600px">
                             <div class="panel-body" id="course">
 
-                                {% if continue_course_id %}
-                                    <div id="start" class="alert alert-success" tabindex="0"
-                                         style="width: 55%;text-align: left;">
-                                        下面我们继续学习{{ continue_course_name }}吧.请点击需要学习的章节！
-                                    </div>
-                                {% else %}
-                                    <div id="start" class="alert alert-success" tabindex="0"
-                                         style="width: 55%;text-align: left;">
-                                        下面我们开始课程吧.请点击需要学习的章节！
-                                    </div>
-                                {% endif %}
+                                <div id="start" class="alert alert-success" tabindex="0"
+                                     style="width: 55%;text-align: left;">
+                                    下面我们继续来学习+ {{ basic_name }} + 课程中的+ {{ basic_chapter_name }}
+                                </div>
 
 
                             </div>
@@ -170,44 +150,19 @@
 {% endblock %}
 
 {% block js %}
+    <!-- Custom Js -->
+    {#    <script src="{% static 'js/custom-scripts.js' %}"></script>#}
     <script src="{% static 'js/jquery-1.10.2.js' %}"></script>
     <!-- Bootstrap Js -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <!-- Metis Menu Js -->
     <script src="{% static 'js/jquery.metisMenu.js' %}"></script>
-    <!-- editormd Js -->
+    <!-- Custom Js -->
+    {#        <script src="{% static 'js/custom-scripts.js' %}"></script>#}
     <script src="{% static 'js/editor/editormd.js' %}"></script>
 
 
     <script type="text/javascript">
-        {#------初始化左侧导航栏下拉菜单格式#}
-        var mainApp = {
-
-            initFunction: function () {
-                /*MENU
-                ------------------------------------*/
-                $('#main-menu').metisMenu();
-
-                $(window).bind("load resize", function () {
-                    if ($(this).width() < 768) {
-                        $('div.sidebar-collapse').addClass('collapse')
-                    } else {
-                        $('div.sidebar-collapse').removeClass('collapse')
-                    }
-                });
-
-            },
-
-            initialization: function () {
-                mainApp.initFunction();
-
-            }
-
-        };
-        $(document).ready(function () {
-            mainApp.initFunction();
-        });
-        {#------初始化ide界面#}
         var testEditor;
 
         function getCodeValue() {
@@ -385,5 +340,10 @@
 
     </script>
     <script src="{% static 'js/learn.js' %}"></script>
+    <script>
+        course_id ={{ biasic_id }};
+        chapter_id =
+        {{ chapter_id }}
+    </script>
 
 {% endblock %}

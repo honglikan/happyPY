@@ -75,6 +75,7 @@ def correct(file):
     r["version"] = get_version()
     pyname = get_pyname()
     try:
+        print(EXEC)
         # subprocess.check_output 是 父进程等待子进程完成，返回子进程向标准输出的输出结果
         # stderr是标准输出的类型
         outdata = decode(subprocess.check_output([EXEC, file], stderr=subprocess.STDOUT, timeout=120))
@@ -97,7 +98,7 @@ def correct(file):
 
 if __name__ == '__main__':
   #code = "import math           math.sqrt(16)"
-  file = 'E:\\python\\happyPY\\hlPY\\results\\1_1_9.txt'
+  file = 'E:\\python\\happyPY\\hlPY\\hints\\test.txt'
   print(correct(file))
 
 

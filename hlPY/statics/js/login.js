@@ -12,8 +12,21 @@ $(function () {
         $("#code").text(str1);
     }
 
+
     code();
     $("#code").click(code);
+     $("#123").blur(function () {
+        if ($(this).val().length == 0) {
+            $(this).parent().next().next("div").text("");
+            $(this).parent().next().next("div").css("color", '#ccc');
+        } else if ($(this).val().toUpperCase() != $("#code").text().toUpperCase()) {
+            $(this).parent().next().next("div").text("验证码不正确");
+            $(this).parent().next().next("div").css("color", 'red');
+        } else {
+            $(this).parent().next().next("div").text("");
+        }
+
+    })
     $("#login_submit_btn").click(function (e) {
 
             if ($("input[name='logidentify']").val().length == 0) {

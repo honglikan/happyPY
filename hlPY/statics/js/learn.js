@@ -10,18 +10,20 @@ var pre_course_id = '0';
 var pre_chapter_id = '0';
 //本页面中上次学习的章节内容号
 var pre_contant_id = '0';
+
 //本章课程学习持续时间
-var last_time = 23450;
+var last_time = 0;
 window.setInterval(function () {
     last_time++;
 }, 1000);
 
 window.onload = course_getFocus;
 
-//页面卸载文档时提交本章节学习时长
+//------页面卸载文档时提交本章节学习时长
 $(window).bind('beforeunload', function (e) {
     //询问用户是否需要调整页面
     var win = window.event || e;
+
     //新版本浏览器不支持弹出窗口内容修改，本内容注销
     // var hour = 0;
     // var min = 0;
@@ -71,11 +73,11 @@ $(window).bind('beforeunload', function (e) {
             }
         });
     }
-
+    return win;
 });
 
 
-//页面加载完成后光标放在滚动条最上层
+//------页面加载完成后光标放在滚动条最上层
 function course_getFocus() {
     window.scrollTo(0, 0);
 }
@@ -84,7 +86,7 @@ function course_getFocus() {
 //------提交后台具体课程号、章节号
 function getCont(c) {
 //其他课程颜色为白色，被选课程颜色变为黄色
-    var allA = document.getElementsByTagName("a");
+    var allA = document.getElementsByClassName("course");
 
     for (var i = 0; i < allA.length; i++) {
         allA[i].style.color = 'white';
@@ -201,7 +203,15 @@ function nextContent(c) {
             var content = document.createElement('div');
             content.setAttribute('class', "alert alert-success");
             content.setAttribute('style', "width: 55%;text-align: left;float:left");
-            content.innerHTML = data.contant_info;
+            if(data.isImg){
+                //<img src="{% static 'img/about.jpg' %}">
+                    var innerimage=document.createElement('img');
+                    innerimage.src=data.contant_info;
+                    content.appendChild(innerimage);
+
+            }else{
+                content.innerHTML = data.contant_info;
+            }
             var course = document.getElementById("course");
             course.appendChild(content);
             //设置课程对话框定位在最底部
@@ -251,9 +261,8 @@ function askHint(c) {
         },
         success: function (data) {
             // $("#result").val(data.output)
-            contant_id = data.contant_id;
+            contant_id = data.cotent_id;
             alert(data.codehint)
         }
     });
 }
-
