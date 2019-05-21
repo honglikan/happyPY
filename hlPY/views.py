@@ -81,17 +81,17 @@ def register(request):
         select_database_phone = user_info.objects.filter(phone=phone)
         select_database_email = user_info.objects.filter(email=email)
         if select_database_username:
-            # return render(request,'login/register.html',{"ERROR":"该用户名已存在"})
-            return render_to_response('login/register.html', {'error': "该用户名已存在"})
+            #return render(request,'login/register.html',{"ERROR":"该用户名已存在"})
+            return render_to_response('login/register.html',{'error':"该用户名已存在"})
         else:
             if select_database_phone:
-                # return render(request,'login/register.html',{"ERROR":"该手机号已用于注册"})
+                #return render(request,'login/register.html',{"ERROR":"该手机号已用于注册"})
                 return render_to_response('login/register.html', {'error': "该手机号已用于注册"})
 
             else:
                 if select_database_email:
-                    # return render(request,'login/register.html',{"ERROR":"该邮箱已用于注册"})
-                    return render_to_response('login/register.html', {'error': "该邮箱已用于注册"})
+                    #return render(request,'login/register.html',{"ERROR":"该邮箱已用于注册"})
+                    return render_to_response('login/register.html',{'error':"该邮箱已用于注册"})
                 else:
                     psd = make_password(password)
                     insert_database = user_info(username=username, password=psd, phone=phone, email=email, sex=sex,
@@ -99,9 +99,9 @@ def register(request):
                                                 last_login=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                                 date_joined=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                     insert_database.save()
-                    # return render(request,'login/register.html',{"SUCCESS":"注册成功"})
-                    return render_to_response('login/register.html', {'success': True})
-    return render(request, 'login/register.html')
+                    #return render(request,'login/register.html',{"SUCCESS":"注册成功"})
+                    return render_to_response('login/register.html',{'success':True})
+    return render(request,'login/register.html')
 
 
 '''进入编程环境页面，要求登录用户才能进入，否则会自动跳转到登录页面'''
@@ -153,6 +153,8 @@ def user_page(request):
             basic_course_info = user_page2(username)[0]
         # 接受user_page2，添加进阶课信息
             practice_course_info = user_page2(username)[1]
+            learn_time = user_page2(username)[2]
+            list(select_database_username)[0]["learn_time"] = learn_time
         # 回传信息
             d = {'user_info': list(select_database_username)[0], 'basic_course_info': basic_course_info,
              'practice_course_info': practice_course_info}
@@ -160,7 +162,14 @@ def user_page(request):
         #d = json.dumps(d,ensure_ascii=False)  # 回传信息转json
             return render(request, 'user_page.html', d)
         else:
-            return render(request, 'user_page.html', {'error': 0})
+            basic_course_info={}
+            #basic_course_info["learn_time"] = 0
+            practice_course_info={}
+            #practice_course_info["learn_time"] = 0
+            list(select_database_username)[0]["learn_time"] = '0'
+            d = {'user_info': list(select_database_username)[0], 'basic_course_info': basic_course_info,
+             'practice_course_info': practice_course_info}
+            return render(request, 'user_page.html',d)
 
 
 """课程信息返回函数，返回课程id、课程名、章节数、用户学习进度百分比及学习进度等详细信息至user_page"""
@@ -196,16 +205,35 @@ def user_page2(username):
             # rate：用户已完成的课程占比、basic_course_name：基础课程名、user_progress：已完成的章节数和学习状态
             basic_id = list(select_database_basic_progress1)[i]["basic_id"]
             basic_course_info["basic_course_id"] = basic_id
+            basic_course_info["type"] = "basic"
             basic_course_info["basic_course_num"] = len(list(select_database_count_basic_course))
             basic_course_info["rate"] = str(round(len(list(select_database_basic_progress2))/basic_course_info["basic_course_num"]*100,0))[:-2]+'%'
             basic_course_info["basic_course_name"] = list(select_database_count_basic_course1)[0]['basic_name']
-            basic_course_time = list(select_database_basic_course_time)[0]["sum_time"]
+            basic_course_time = list(select_database_basic_course_time)[i]["sum_time"]
+            basic_course_time_minute ,basic_course_time_second = divmod(basic_course_time,60)
+            basic_course_time_hour,basic_course_time_minute = divmod(basic_course_time_minute,60)
+            if basic_course_time_hour == 0:
+                if basic_course_time_minute == 0:
+                    basic_course_time = str(basic_course_time_second)+"秒"
+                else:
+                    basic_course_time = str(basic_course_time_minute)+"分钟"+str(basic_course_time_second)+"秒"
+            else:
+                basic_course_time = str(basic_course_time_hour)+"小时"+str(basic_course_time_minute)+"分钟"+str(basic_course_time_second)+"秒"
             learn_time = select_database_learn_time["sum_time2"]
+            learn_time_minute, learn_time_second = divmod(learn_time,60)
+            learn_time_hour,learn_time_minute = divmod(learn_time_minute,60)
+            if learn_time_hour == 0:
+                if learn_time_minute == 0:
+                    learn_time = str(learn_time_second)+"秒"
+                else:
+                    learn_time = str(learn_time_minute)+"分钟" +  str(learn_time_second)+"秒"
+            else:
+                learn_time = str(learn_time_hour)+"小时"+ str(learn_time_minute)+"分钟" +  str(learn_time_second)+"秒"
             basic_course_info["basic_course_time"] = basic_course_time
-            basic_course_info["learn_time"] = learn_time
+            #basic_course_info["learn_time"] = learn_time
             basic_course_info["user_progress"] = list(select_database_basic_progress2)  # 已完成的章节数和学习状态
             basic_info.append(basic_course_info)
-        return basic_info, practice_info
+        return basic_info, practice_info,learn_time
     #对获取的已学习基础、实战课程进行判断，若有实战课程学习进度、无基础课程学习进度
     if select_database_practice_progress1 and not select_database_basic_progress1:
         # 对用户已学习的实战课程进度进行循环
@@ -231,18 +259,37 @@ def user_page2(username):
             # 对返回值practice_course_info进行拼接，包括practice_course_id：实战课程id、practice_course_num：每个实战课程章节数、
             # rate：用户已完成的课程占比、practice_course_name：实战课程名、user_progress：已完成的章节数和学习状态
             practice_course_info["practice_course_id"] = list(select_database_practice_progress1)[i]["practice_id"]
+            practice_course_info["type"] = "practice"
             practice_course_info["practice_course_num"] = len(list(select_database_count_practice_course))
-            basic_course_time = list(select_database_practice_course_time)[0]["sum_time"]
+            practice_course_time = list(select_database_practice_course_time)[i]["sum_time"]
+            practice_course_time_minute, practice_course_time_second = divmod(practice_course_time, 60)
+            practice_course_time_hour, practice_course_time_minute = divmod(practice_course_time_minute, 60)
+            if practice_course_time_hour == 0:
+                if practice_course_time_minute == 0:
+                    practice_course_time = str(practice_course_time_second)+"秒"
+                else:
+                    practice_course_time = str(practice_course_time_minute)+"分钟"+str(practice_course_time_second)+"秒"
+            else:
+                practice_course_time = str(practice_course_time_hour)+"小时"+str(practice_course_time_minute)+"分钟"+str(practice_course_time_second)+"秒"
             learn_time = select_database_learn_time["sum_time2"]
-            practice_course_info["basic_course_time"] = basic_course_time
-            practice_course_info["learn_time"] = learn_time
+            learn_time_minute, learn_time_second = divmod(learn_time, 60)
+            learn_time_hour, learn_time_minute = divmod(learn_time_minute, 60)
+            if learn_time_hour == 0:
+                if learn_time_minute == 0:
+                    learn_time = str(learn_time_second) + "秒"
+                else:
+                    learn_time = str(learn_time_minute) + "分钟" + str(learn_time_second) + "秒"
+            else:
+                learn_time = str(learn_time_hour) + "小时" + str(learn_time_minute) + "分钟" + str(learn_time_second) + "秒"
+            practice_course_info["practice_course_time"] = practice_course_time
+            #practice_course_info["learn_time"] = learn_time
             practice_course_info["rate"] = str(
                 round(len(list(select_database_practice_progress2)) / practice_course_info["practice_course_num"] * 100,
                       0)) + '%'
             practice_course_info["practice_course_name"] = list(select_database_count_practice_course1)[0]['practice_name']
             practice_course_info["user_progress"] = list(select_database_practice_progress2)  # 已完成的章节数和学习状态
             practice_info.append(practice_course_info)
-        return basic_info, practice_info
+        return basic_info, practice_info,learn_time
     #对获取的已学习基础、实战课程进行判断，若有实战课程学习进度、基础课程学习进度，具体注释参见上文
     if select_database_basic_progress1 and select_database_practice_progress1:
         for i in range(len(list(select_database_basic_progress1))):
@@ -268,15 +315,25 @@ def user_page2(username):
             # rate：用户已完成的课程占比、basic_course_name：基础课程名、user_progress：已完成的章节数和学习状态
             basic_id = list(select_database_basic_progress1)[i]["basic_id"]
             basic_course_info["basic_course_id"] = basic_id
+            basic_course_info["type"] = "basic"
             basic_course_info["basic_course_num"] = len(list(select_database_count_basic_course))
             basic_course_info["rate"] = str(
                 round(len(list(select_database_basic_progress2)) / basic_course_info["basic_course_num"] * 100, 0))[
                                         :-2] + '%'
             basic_course_info["basic_course_name"] = list(select_database_count_basic_course1)[0]['basic_name']
-            basic_course_time = list(select_database_basic_course_time)[0]["sum_time"]
+            basic_course_time = list(select_database_basic_course_time)[i]["sum_time"]
+            basic_course_time_minute ,basic_course_time_second = divmod(basic_course_time,60)
+            basic_course_time_hour,basic_course_time_minute = divmod(basic_course_time_minute,60)
+            if basic_course_time_hour == 0:
+                if basic_course_time_minute == 0:
+                    basic_course_time = str(basic_course_time_second)+"秒"
+                else:
+                    basic_course_time = str(basic_course_time_minute)+"分钟"+str(basic_course_time_second)+"秒"
+            else:
+                basic_course_time = str(basic_course_time_hour)+"小时"+str(basic_course_time_minute)+"分钟"+str(basic_course_time_second)+"秒"
             learn_time = select_database_learn_time["sum_time2"]
             basic_course_info["basic_course_time"] = basic_course_time
-            basic_course_info["learn_time"] = learn_time
+            #basic_course_info["learn_time"] = learn_time
             basic_course_info["user_progress"] = list(select_database_basic_progress2)  # 已完成的章节数和学习状态
             basic_info.append(basic_course_info)
         for i in range(len(list(select_database_practice_progress1))):
@@ -303,10 +360,20 @@ def user_page2(username):
             # rate：用户已完成的课程占比、practice_course_name：实战课程名、user_progress：已完成的章节数和学习状态
             practice_course_info["practice_course_id"] = list(select_database_practice_progress1)[i]["practice_id"]
             practice_course_info["practice_course_num"] = len(list(select_database_count_practice_course))
-            basic_course_time = list(select_database_practice_course_time)[0]["sum_time"]
-            learn_time = select_database_learn_time["sum_time2"]
-            practice_course_info["basic_course_time"] = basic_course_time
-            practice_course_info["learn_time"] = learn_time
+            practice_course_info["type"] = "practice"
+            practice_course_time = list(select_database_practice_course_time)[i]["sum_time"]
+            practice_course_time_minute, practice_course_time_second = divmod(practice_course_time, 60)
+            practice_course_time_hour, practice_course_time_minute = divmod(practice_course_time_minute, 60)
+            if practice_course_time_hour == 0:
+                if practice_course_time_minute == 0:
+                    practice_course_time = str(practice_course_time_second) + "秒"
+                else:
+                    practice_course_time = str(practice_course_time_minute) + "分钟" + str(
+                        practice_course_time_second) + "秒"
+            else:
+                practice_course_time = str(practice_course_time_hour) + "小时" + str(
+                    practice_course_time_minute) + "分钟" + str(practice_course_time_second) + "秒"
+            practice_course_info["practice_course_time"] = practice_course_time
             practice_course_info["rate"] = str(
                 round(len(list(select_database_practice_progress2)) / practice_course_info["practice_course_num"] * 100,
                       0)) + '%'
@@ -314,7 +381,21 @@ def user_page2(username):
                 'practice_name']
             practice_course_info["user_progress"] = list(select_database_practice_progress2)  # 已完成的章节数和学习状态
             practice_info.append(practice_course_info)
-        return basic_info, practice_info
+        learn_time1 = basic_learn_progress.objects.filter(user_id=user_id).aggregate(sum_time2=Sum("learn_time"))[
+            "sum_time2"]
+        learn_time2 = practice_learn_progress.objects.filter(user_id=user_id).aggregate(sum_time2=Sum("learn_time"))[
+            "sum_time2"]
+        learn_time = learn_time1 + learn_time2
+        learn_time_minute, learn_time_second = divmod(learn_time, 60)
+        learn_time_hour, learn_time_minute = divmod(learn_time_minute, 60)
+        if learn_time_hour == 0:
+            if learn_time_minute == 0:
+                learn_time = str(learn_time_second) + "秒"
+            else:
+                learn_time = str(learn_time_minute) + "分钟" + str(learn_time_second) + "秒"
+        else:
+            learn_time = str(learn_time_hour) + "小时" + str(learn_time_minute) + "分钟" + str(learn_time_second) + "秒"
+        return basic_info, practice_info,learn_time
 
 
 """用户页用户信息变更，可更改用户密码、手机号、邮箱
