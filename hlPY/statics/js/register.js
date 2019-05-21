@@ -68,7 +68,10 @@ $(function () {
         } else if ($(this).val().length > 2) {
             $(this).parent().next("div").text("长度只能在2个字符以内");
             $(this).parent().next("div").css("color", 'red');
-        } else {
+        } else if($(this).val().match(/[^1-9]/g,'')){
+            $(this).parent().next("div").text("年龄只能是正整数");
+            $(this).parent().next("div").css("color", 'red');
+        }else {
             $(this).parent().next("div").text("");
         }
     })
@@ -104,11 +107,16 @@ $(function () {
         } else if ($(this).val().length != 11) {
             $(this).parent().next("div").text("手机号格式不正确");
             $(this).parent().next("div").css("color", 'red');
-        } else {
+        }else if($(this).val().substr(0, 1) != 1 || $(this).val().match(/[^0-9]/g,'')){
+            $(this).parent().next("div").text("手机号格式不正确");
+            $(this).parent().next("div").css("color", 'red');
+        }
+        else {
             $(this).parent().next("div").text("");
         }
     })
     $("input[name='email']").blur(function () {
+        $(this).maxLength = $(this).length;
         if ($(this).val().length == 0) {
             $(this).parent().next("div").text("");
             $(this).parent().next("div").css("color", '#ccc');
@@ -149,7 +157,14 @@ $(function () {
     //	提交按钮
     $("#submit_btn").click(function (e) {
         // alert($('input').length )
+        if ($("input[name='identify']").val().toUpperCase() != $("#code").text().toUpperCase()) {
+            $("input[name='identify']").parent().next().next("div").text("验证码不正确");
+            $("input[name='identify']").parent().next().next("div").css("color", 'red');
+            e.preventDefault();
+            return;
+        }
 
+        //提交时验证input不能为空
         for (var j = 0; j < 8; j++) {
             if ($('input').eq(j).val().length == 0) {
                 $('input').eq(j).focus();
@@ -167,6 +182,7 @@ $(function () {
                 return;
                 }
     }
+
         if($("input[name='identify']").val().toUpperCase() != $("#code").text().toUpperCase()) {
             // alert($("#code").text())
             // alert()
@@ -175,6 +191,41 @@ $(function () {
             e.preventDefault();
             return;
         }
+        if ($("input[name='phone']").val().substr(0, 1) != 1 || $("input[name='phone']").val().length != 11 || $("input[name='phone']").val().match(/[^0-9]/g)) {
+            $("input[name='phone']").parent().next("div").text("手机号格式不正确");
+            $("input[name='phone']").parent().next("div").css("color", 'red');
+            e.preventDefault();
+            return;
+        }
+        if ($("input[name='password2']").val() != $("input[name='password']").val()) {
+            $(this).parent().next("div").text("两次密码不匹配");
+            $(this).parent().next("div").css("color", 'red');
+            e.preventDefault();
+            return;
+        }
+        if (!$("input[name='email']").val().match(/^[a-zA-Z0-9_-]+@([a-zA-Z0-9]+\.)+(com|cn|net|org)$/)) {
+            $("input[name='email']").parent().next("div").text("邮箱格式不正确");
+            $("input[name='email']").parent().next("div").css("color", 'red');
+            e.preventDefault();
+            return;
+        }
+        if ($("input[name='age']").val().length > 2) {
+            $("input[name='age']").parent().next("div").text("长度只能在2个字符以内");
+            $("input[name='age']").parent().next("div").css("color", 'red');
+            e.preventDefault();
+            return;
+        }
+        if($("input[name='age']").val().match(/[^1-9]/g,'')){
+            $("input[name='age']").parent().next("div").text("年龄只能是正整数");
+            $("input[name='age']").parent().next("div").css("color", 'red');
+            e.preventDefault();
+            return;
+        }
+
+
+
+
+
         //协议
         if ($("#xieyi")[0].checked) {
             //向变量stuList数组添加一个数值，数值内部格式Student(name,age,password,phone,email)
@@ -192,36 +243,4 @@ $(function () {
 
 
     })
-    // function registerState() {
-    // 	$.ajax({
-    // 		url:"/",
-    // 		type:"post",
-    // 		dataType:"html",
-    // 		async:false,
-    // 		success:function (result) {
-    // 			alert("注册成功！")
-    // 		}
-    // 	});
-    //
-    // }
-
 })
-/*function register() {
-            $.ajax({
-            //几个参数需要注意一下
-                type: "POST",//方法类型
-                dataType: "json",//预期服务器返回的数据类型
-                url: "/login/register" ,//url
-                data: $('#form1').serialize(),
-                success: function (result) {
-                    console.log(result);//打印服务端返回的数据(调试用)
-                    if (result.resultCode == 200) {
-                        alert("SUCCESS");
-                    }
-                    ;
-                },
-                error : function() {
-                    alert("异常！");
-                }
-            });
-        }*/

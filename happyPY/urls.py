@@ -38,6 +38,8 @@ urlpatterns = [
     path('learn_basic/',views.learn_basic,name='learn_basic'),
     path('learn_practice/',views.learn_practice,name='learn_practice'),
     path('course/',views.course,name='course'),
+    path('user_info_modify/', views.user_info_modify, name='user_info_modify'),
+    path('user_course_locate/', views.user_course_locate, name='user_course_locate'),
 
 
     #path('basic_course_post/',views.basic_course_post,name='basic_course_post'),
