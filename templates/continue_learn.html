@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block css %}
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Free Bootstrap Admin Template : Dream</title>
+    <!-- Bootstrap Styles-->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet"/>
+    <!-- FontAwesome Styles-->
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet"/>
+    <!-- Custom Styles-->
+    <link href="{% static 'css/custom-styles.css' %}" rel="stylesheet"/>
+    <!-- Google Fonts-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <link href="{% static 'css/editor/style.css' %}" rel='stylesheet' type='text/css'/>
+    <link href="{% static 'css/editor/editormd.css' %}" rel='stylesheet' type='text/css'/>
+    <link href="{% static 'css/learn.css' %}" rel='stylesheet' type='text/css'/>
+
+{% endblock %}
+{% block content %}
+    {% csrf_token %}
+    <div id="wrapper">
+        <div style="height: 88px;"></div>
+        <!--/. NAV TOP  -->
+        <nav class="navbar-default navbar-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav" id="main-menu">
+                    {% for i in basic_info %}
+                        <li class="active collapse">
+                            <a href=" #" id="{{ i.basic_id }}"><i class="fa fa-sitemap"></i>
+                                {{ i.basic_name }}
+                                {% if i.progress %}
+                                    <span class="fa arrow"></span>
+                                {% endif %}
+                            </a>
+                            <ul class="nav nav-second-level collapse in" style="height:auto">
+                                {% for j in i.progress %}
+                                    <li>
+                                        {% if j.learn_status == '1' %}
+                                            <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
+                                               name="{{ i.basic_id }}" class="course"
+                                               onclick="getCont(this)">{{ j.basic_chapter_name }}(已完成)</a>
+                                        {% elif j.learn_status == '2' %}
+                                            <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
+                                               name="{{ i.basic_id }}" class="course"
+                                               onclick="getCont(this)">{{ j.basic_chapter_name }}(进行中)</a>
+                                        {% else %}
+                                            <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
+                                               name="{{ i.basic_id }}" class="course"
+                                               onclick="getCont(this)">{{ j.basic_chapter_name }}(未开始)</a>
+                                        {% endif %}
+
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+
+                        </li>
+                    {% endfor %}
+
+                </ul>
+
+            </div>
+
+        </nav>
+        <!-- /. NAV SIDE  -->
+        <div id="page-wrapper">
+            <div id="page-inner">
+
+                <div class="row">
+
+                    <div class="col-md-12">
+
+
+                        <!--  Modals-->
+                        <div class="panel panel-default" style="height: 600px">
+                            <div class="panel-body" id="course">
+
+                                <div id="start" class="alert alert-success" tabindex="0"
+                                     style="width: 55%;text-align: left;">
+                                    下面我们继续来学习+ {{ basic_name }} + 课程中的+ {{ basic_chapter_name }}
+                                </div>
+
+
+                            </div>
+
+                            <div class="panel-body">
+                                <button class="btn-lg" id="hint" disabled="disabled" onclick="askHint(this)">
+                                    查看提示
+                                </button>
+                                <button class="btn-lg" id="next" disabled="disabled" onclick="nextContent(this)"
+                                        style="background-color: grey">
+                                    下一个
+                                </button>
+                            </div>
+
+                            <!-- End Modals-->
+                        </div>
+                        <div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+                <!-- code area  -->
+
+                <div class="row">
+
+                    <div class="col-md-12">
+
+                        <!--  code area-->
+                        <div class="panel panel-default">
+
+
+                            <div id="layout" style="height: 300px;">
+
+                                <div id="test-editormd">
+                                    <textarea style="display:none;"></textarea>
+                                </div>
+                                <div style="">
+                                    <button id="clear" name="clear" class="btn-lg" style="position:absolute;left:40%"
+                                            disabled="disabled">
+                                        清空
+                                    </button>
+                                    <button id="submit" name="submit" class="btn-lg" style="position:absolute;left:50%"
+                                            disabled="disabled">
+                                        提交
+                                    </button>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <!-- End code area-->
+                    </div>
+                </div>
+
+                <!-- /. code area  -->
+                <!-- /. PAGE INNER  -->
+            </div>
+            <!-- /. PAGE WRAPPER  -->
+        </div>
+        <!-- /. WRAPPER  -->
+    </div>
+    <!-- JS Scripts-->
+    <!-- jQuery Js -->
+{% endblock %}
+
+{% block js %}
+    <!-- Custom Js -->
+    {#    <script src="{% static 'js/custom-scripts.js' %}"></script>#}
+    <script src="{% static 'js/jquery-1.10.2.js' %}"></script>
+    <!-- Bootstrap Js -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- Metis Menu Js -->
+    <script src="{% static 'js/jquery.metisMenu.js' %}"></script>
+    <!-- Custom Js -->
+    {#        <script src="{% static 'js/custom-scripts.js' %}"></script>#}
+    <script src="{% static 'js/editor/editormd.js' %}"></script>
+
+
+    <script type="text/javascript">
+        var testEditor;
+
+        function getCodeValue() {
+            return (localStorage.modeName) ? $("#" + localStorage.modeName.replace("text/", "").replace("c/c++", "cpp") + "-code").val() : $("#html-code").val();
+        }
+
+        $(function () {
+            testEditor = editormd("test-editormd", {
+                width: "100%",
+                height: 230,
+                watch: false,
+                toolbar: false,
+                codeFold: true,
+                searchReplace: true,
+                placeholder: "请提交代码",
+                autoFocus: false,
+                value: getCodeValue(),
+                theme: (localStorage.theme) ? localStorage.theme : "default",
+                mode: (localStorage.mode) ? localStorage.mode : "python",
+                path: "{% static 'lib/' %}"
+            });
+
+            {#清空代码及代码运行结果的内容#}
+            $("#clear").bind("click", function () {
+                testEditor.setValue('');
+                testEditor.autoFocus = true;
+            });
+
+            {#------提交代码执行结果#}
+            $("#submit").bind("click", function () {
+                var course = document.getElementById("course");
+                var code = testEditor.getValue();
+                if (code == '') {
+                    alert("亲你提交的代码是空的哦，请务必填写需要提交的代码啊，拜托了！");
+                } else {
+                    var postData = {
+                        'code': code,
+                        'course_id': course_id,
+                        'chapter_id': chapter_id,
+                        'basic_contant_id': contant_id
+                    };
+                    {#------在课程对话框中显示代码#}
+                    var container = document.createElement('div');
+                    container.setAttribute('class', "alert alert-info");
+                    container.setAttribute('style', "width: 55%;text-align: left;float:right");
+                    container.setAttribute('disabled', "disabled");
+                    {#-------进行换行符转换，显示换行#}
+
+                    var i;
+                    var result = "亲，你提交的代码是：</br>";
+                    var c;
+                    for (i = 0; i < code.length; i++) {
+                        c = code.substr(i, 1);
+                        if (c == "\n")
+                            result = result + "</br>";
+                        else if (c != "\r")
+                            result = result + c;
+
+                    }
+                    container.innerHTML = result;
+                    course.appendChild(container);
+                    container.focus();
+                    {#-------清空代码框#}
+                    testEditor.setValue('');
+                    {# -----提交代码进行测试#}
+                    $.ajax({
+                        async: false,
+                        cache: false,
+                        type: 'POST',
+                        url: "{% url 'basic_course_codetest' %}",
+                        dataType: "json",
+                        data: postData,
+                        error: function () {
+                            alert('请求失败');
+                        },
+                        success: function (data) {
+                            contant_id = data.contant_id;
+                            //将代码执行结果显示在课程对话框中
+                            var content = document.createElement('div');
+                            content.setAttribute('class', "alert alert-success");
+                            content.setAttribute('style', "width: 55%;text-align: left;float:left");
+
+                            content.setAttribute('disabled', "disabled");
+                            {#------转换执行结果格式，增加换行符<br/>#}
+                            var str = data.result.output;
+                            var i;
+                            var result = "代码的运行结果是：</br>";
+                            var c;
+                            for (i = 0; i < str.length; i++) {
+                                c = str.substr(i, 1);
+                                if (c == "\n")
+                                    result = result + "</br>";
+                                else if (c != "\r")
+                                    result = result + c;
+
+                            }
+                            content.innerHTML = result;
+                            course.appendChild(content);
+                            if (data.success) {
+                                document.getElementById('submit').disabled = true;
+                                document.getElementById('submit').style.backgroundColor = 'grey';
+                                document.getElementById('next').disabled = false;
+                                document.getElementById('next').style.backgroundColor = '#82C6E0';
+                                document.getElementById('clear').disabled = true;
+                                document.getElementById('clear').style.backgroundColor = 'grey';
+
+                            }
+                            //将代码执行结果是否正确显示在课程对话框中
+                            var content = document.createElement('div');
+                            content.setAttribute('class', "alert alert-success");
+                            content.setAttribute('style', "width: 55%;text-align: left;float:left");
+                            content.innerHTML = data.contant_info;
+                            course.appendChild(content);
+                            content.focus();
+                            //设置课程对话框定位在最底部
+                            course.scrollTop = course.scrollHeight;
+                            //设置窗口定位在顶部
+                            window.scrollTo(0, 0);
+                        }
+
+                    });
+                }
+
+
+            });
+
+            var select = $("#themes");
+
+            for (var i = 0, len = editormd.themes.length; i < len; i++) {
+                var theme = editormd.themes[i];
+                var selected = (localStorage.theme == theme) ? " selected=\"selected\"" : "";
+                select.append("<option value=\"" + theme + "\"" + selected + ">" + theme + "</option>");
+            }
+
+            select.change(function () {
+                var theme = $(this).val();
+
+                if (theme == "") {
+                    alert("theme == \"\"");
+                    return false;
+                }
+
+                localStorage.theme = theme;
+                testEditor.setTheme(theme);
+            });
+
+            var modesSelect = $("#modes");
+            var modeNames = ["python"];
+            var modes = ["python"];
+
+
+            var mode = modes[0];
+            var selected = (localStorage.modeName == modeNames[0]) ? " selected=\"selected\"" : "";
+            modesSelect.append("<option value=\"" + mode + "\"" + selected + " name=\"" + modeNames[0] + "\"" + selected + ">" + modeNames[0] + "</option>");
+
+            modesSelect.change(function () {
+                var mode = $(this).val();
+                var modeName = $(this).find("option:selected").attr("name");
+
+                if (mode == "") {
+                    alert("mode == \"\"");
+                    return false;
+                }
+
+                localStorage.mode = mode;
+                localStorage.modeName = modeName;
+
+                var code = getCodeValue();
+
+                testEditor.setCodeMirrorOption("mode", mode);
+                //testEditor.setCodeMirrorOption("value", code);
+                testEditor.setValue(code);
+            });
+        });
+
+    </script>
+    <script src="{% static 'js/learn.js' %}"></script>
+    <script>
+        course_id ={{ biasic_id }};
+        chapter_id =
+        {{ chapter_id }}
+    </script>
+
+{% endblock %}

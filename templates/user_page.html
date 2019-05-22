@@ -1,0 +1,217 @@
+
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static "css/user_page.css" %}">
+{% endblock %}
+
+
+{% block js %}
+
+
+    <script src="{% static 'js/jquery-2.2.3.js' %}"></script>
+    <script src="{% static "js/user_page.js"%}"></script>
+    <script src="{% static 'js/jquery-2.2.3.js' %}"></script>
+    <script src="{% static 'js/echarts.min.js'%}"></script>
+    <script src="{% static 'js/pie.js'%}"></script>
+            <script >
+        phonenumber ={{ user_info.phone|slice:":3" }}+"****"+{{ user_info.phone|slice:"7:" }};
+    </script>
+ {% endblock %}
+{% block content %}
+
+
+
+
+<body style="width: 100%; height: 100%; font-family:'Source Sans Pro'" onload="Abc()" >    //页面刷新时执行函数Abc()
+<div style="height: 64px; min-height: 100%;width: auto; border:1px solid #000; " ></div>
+<div style="height: 100vh; width: auto; border:3px solid #000;margin-outside: 20px; color: honeydew" >
+    <div class="right" style="float:right;height: auto; width: 80%; border:1px solid #ff0000;background-color:#2D2C2C" >
+        <div style="height:80%; width: 100%; border:1px solid green" >
+        <table id="course" style="width: 80%;text-align:center ">
+        <tr >
+            <th style="text-align:center!important; " > 课 程 名</th>
+            <th style="text-align:center!important;" > 学 习 进 度</th>
+            <th style="text-align:center!important;" >  学 习 时 长 </th>
+            <th style="text-align:center!important;" >  学 习 状 态 </th>
+        </tr>
+        {% for i in basic_course_info %}
+            {% if  i.rate != "100%" %}
+
+            <tr border="0.1" >
+{#                 课程名称#}
+                <td >{{i.basic_course_name}}</td>
+{#                 课程进度#}
+                <td style="display: none;"  class="rate">{{ i.rate }}</td>
+{#                 课程名称#}
+                <td style="display: none; "  class="course_name">{{ i.basic_course_name }}</td>
+{#                 //课程进度#}
+                <td  class="yuan" style="height:100px; width:80px ;border: black solid 0px" ></td>
+{#                 某课程课程学习时长#}
+                <td>{{ i.basic_course_time }} </td>
+
+            <td>
+
+                 <form   action="{% url 'user_course_locate' %} " method="post">
+                    {% csrf_token %}
+                     <input style="display: none" name="course_name" value={{i.basic_course_name}} >
+               <input style="display: none" name="course_id" value={{i.basic_course_id}}>
+               <input style="display: none" name="type" value={{i.type}}>
+               <button type="submit"> 开始学习</button>
+               </form>
+            </td>
+              </tr>
+
+        {% endif %}
+            {% endfor %}
+        </table>
+            <div style="text-align:center">
+                <button id="finishbutton"> 已完成课程</button>
+            </div>
+        </div>
+
+
+    <div>
+
+    <div id="finishcourse" style="display: none">
+        <table style="width: 80%;text-align:center ">
+            <tr>
+            <th style="text-align:center!important;" > 课 程 名</th>
+            <th style="text-align:center!important;" > 学 习 进 度</th>
+            <th style="text-align:center!important;" >  学 习 时 长 </th>
+            <th style="text-align:center!important;" >  学 习 状 态 </th>
+        </tr>
+            {% for i in basic_course_info %}
+
+                {% if  i.rate == "100%" %}
+            <tr border="0.1">
+                <td >{{i.basic_course_name}}</td>
+                <td style="display: none"  class="rate">{{ i.rate }}</td>
+                <td style="display: none"  class="course_name">{{ i.basic_course_name }}</td>
+                <td  class="yuan" style="height:100px; width:80px ;border: black solid 0px"  ></td>
+                <td>{{ i.basic_course_time }}</td>
+
+            <td>
+                <form   action="{% url 'user_course_locate' %} " method="post">
+                    {% csrf_token %}
+                <input style="display: none" name="course_name" value={{i.basic_course_name}} >
+               <input style="display: none" name="course_id" value={{i.basic_course_id}}>
+               <input style="display: none" name="type" value={{i.type}}>
+               <button type="submit"> 开始学习</button>
+               </form>
+            </td>
+              </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+        <div style="text-align:center">
+            <button id="finishback"> 返 回</button>
+        </div>
+
+    </div>
+
+    </div>
+
+    </div>
+    <div class="left" style="height:100vh;width: 20%; border: 1px solid #1d3e81;background-color:#2D2C2C ">
+
+        <div class="for" style="height: 85%; width: auto; border:1px solid yellow; ">
+            <ul>
+
+                <li style="list-style-type:none">用户名: {{ user_info.username }}</li>
+                <li style="list-style-type:none">学习时长: {{ user_info.learn_time }}</li>
+                <li style="list-style-type:none">性别: {{ user_info.sex }}</li>
+                <li style="list-style-type:none">年龄:{{ user_info.age }}</li>
+                <li style="list-style-type:none">手机号: {{ user_info.phone }}</li>
+                <li style="list-style-type:none">邮箱: {{ user_info.email}}</li>
+
+            </ul>
+            <ul style="text-align: center">
+                <button id="changeinfo" style="position: center">修改信息</button>
+            </ul>
+            <form id="change" action="{% url  "user_info_modify"%}" style="display: none" method="post">
+                {% csrf_token %}
+                    <div class="register-box">
+                    <label for="username" class="username_label">用 户 名 {{ user_info.username }}
+                    </label>
+                    <div class="tips">
+                    </div>
+                </div>
+                <div class="register-box">
+                    <label for="sex">性 别: {{ user_info.sex }}
+                    </label>
+                    <label for="age"> &#12288;&#12288;&#12288;年 龄: {{ user_info.age }}
+                    </label>
+                    <div class="tips">
+                    </div>
+                </div>
+                <div class="register-box">
+                    <label for="username" class="other_label">新 密 码&#8197;&#12288;
+                        <input style="color: white" maxlength="20" name="password" type="password" placeholder="若不修改，无需填写">
+                    </label>
+                    <div class="tips">
+
+                    </div>
+                </div>
+                <div class="register-box">
+                    <label for="username" class="other_label">确 认 密 码
+                        <input style="color: white" maxlength="20" name="password2" type="password" placeholder="若不修改，无需填写">
+                    </label>
+                    <div class="tips">
+
+                    </div>
+                </div>
+                <div class="register-box">
+                    <label for="username" class="other_label">
+                        <span>手 机 号&#12288;&#8197;</span>
+                        <input style="color: white" class="phone" name="phone" maxlength="20" type="text" value="{{ user_info.phone }}">
+                    </label>
+                    <div class="tips">
+
+                    </div>
+                </div>
+                <div class="register-box">
+                    <label for="username" class="other_label">
+                        <span>邮 箱&#8197;&#8197;&#8197;&#8197;&#8197;&#8197;&#8197;&#8197;&#8197;</span>
+                        <input style="color: white" class="phone" name="email" maxlength="20" type="text" value="{{ user_info.email }}">
+                    </label>
+                    <div class="tips">
+
+                    </div>
+                </div>
+            <div>
+                <button type="submit"; id="changeconfirm";>保存</button>
+                <div style="float:right ">
+                <button type="submit"; id="changeback";>返回</button>
+                </div>
+            </div>
+
+                {% if error %}
+
+                    <script language="javascript" type="text/javascript">
+
+                        alert("修改失败");
+                        window.location.href="{% url "user_page" %}";
+
+                   </script>
+
+                {% endif %}
+                {% if success %}
+                   <script language="javascript" type="text/javascript">
+                        alert("修改成功");
+                        window.location.href="{% url "user_page" %}";
+                   </script>
+                {% endif %}
+            </form>
+
+        </div>
+    </div>
+
+
+
+</div>
+
+</body>
+{%endblock%}
+
+

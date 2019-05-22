@@ -14,41 +14,64 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
     <link href="{% static 'css/editor/style.css' %}" rel='stylesheet' type='text/css'/>
     <link href="{% static 'css/editor/editormd.css' %}" rel='stylesheet' type='text/css'/>
+    <link href="{% static 'css/learn.css' %}" rel='stylesheet' type='text/css'/>
 
 {% endblock %}
 {% block content %}
+    {% csrf_token %}
     <div id="wrapper">
-
+        <div style="height: 88px;"></div>
         <!--/. NAV TOP  -->
         <nav class="navbar-default navbar-side" role="navigation">
             <div class="sidebar-collapse">
                 <ul class="nav" id="main-menu">
-                    <li>
-                        < a href=""></a>
-                    </li>
-                    <li>
-                        < a href=""></a>
-                    </li>
-                    <li>
-                        < a href=""></a>
-                    </li>
-                    {% for i in classname %}
-                        <li>
-                            < a href=" "><i class="fa fa-sitemap"></i>{{ i }}<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                {% for j in chaptername %}
-                                    <li>
-                                        < a href="#">1234567</a>
-                                    </li>
+                    {% for i in basic_info %}
+                        {#                        判断是否为继续学习，如果为继续学习则打开隐藏折行#}
+                        {% if continue_course_id == i.basic_id %}
+                            <li class="active">
+                                {#                                判断是否为继续学习，如果不为继续学习则隐藏折行#}
+                                {% else %}
+                            <li class="">
+                        {% endif %}
+                        <a href=" #" id="{{ i.basic_id }}"><i class="fa fa-sitemap"></i>
+                            {{ i.basic_name }}
+                            {% if i.progress %}
+                                <span class="fa arrow"></span>
+                            {% endif %}
+                        </a>
+                        {#                        判断是否为继续学习，如果为继续学习则打开隐藏折行#}
+                        {% if continue_course_id == i.basic_id %}
+                            <ul class="nav nav-second-level collapse in" style="height:auto">
+                            {#                        判断是否为继续学习，如果不为继续学习则隐藏折行#}
+                        {% else %}
+                            <ul class="nav nav-second-level collapse" style="height:0px">
+                        {% endif %}
 
-                                {% endfor %}
-                            </ul>
+                    {% for j in i.progress %}
+                        <li>
+                            {% if j.learn_status == '1' %}
+                                <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
+                                   name="{{ i.basic_id }}" class="course"
+                                   onclick="getCont(this)">{{ j.basic_chapter_name }}(已完成)</a>
+                            {% elif j.learn_status == '2' %}
+                                <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
+                                   name="{{ i.basic_id }}" class="course"
+                                   onclick="getCont(this)">{{ j.basic_chapter_name }}(进行中)</a>
+                            {% else %}
+                                <a href="javascript:void(0)" id="{{ j.basic_chapter_id }}"
+                                   name="{{ i.basic_id }}" class="course"
+                                   onclick="getCont(this)">{{ j.basic_chapter_name }}(未开始)</a>
+                            {% endif %}
+
+                        </li>
+                    {% endfor %}
+                    </ul>
 
 
                         </li>
                     {% endfor %}
 
-                </ul>
+                    </ul>
 
             </div>
 
@@ -62,27 +85,36 @@
                     <div class="col-md-12">
 
 
-                            <!--  Modals-->
+                        <!--  Modals-->
                         <div class="panel panel-default" style="height: 600px">
-                            <div class="panel-body" style="overflow-y: auto; height: 500px;">
-                                <div class="alert alert-success">
-                                    <strong>Well done!</strong> You successfully read this important alert message.
-                                </div>
-                                <div class="alert alert-success">
-                                    <strong>Well done!</strong> You successfully read this important alert message.
-                                </div>
+                            <div class="panel-body" id="course">
+
+                                {% if continue_course_id %}
+                                    <div id="start" class="alert alert-success" tabindex="0"
+                                         style="width: 55%;text-align: left;">
+                                        下面我们继续学习{{ continue_course_name }}吧.请点击需要学习的章节！
+                                    </div>
+                                {% else %}
+                                    <div id="start" class="alert alert-success" tabindex="0"
+                                         style="width: 55%;text-align: left;">
+                                        下面我们开始课程吧.请点击需要学习的章节！
+                                    </div>
+                                {% endif %}
+
+
                             </div>
 
                             <div class="panel-body">
-                                <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                                <button class="btn-lg" id="hint" disabled="disabled" onclick="askHint(this)">
                                     查看提示
                                 </button>
-                                <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                                <button class="btn-lg" id="next" disabled="disabled" onclick="nextContent(this)"
+                                        style="background-color: grey">
                                     下一个
                                 </button>
                             </div>
 
-                        <!-- End Modals-->
+                            <!-- End Modals-->
                         </div>
                         <div>
 
@@ -93,6 +125,8 @@
 
                 </div>
 
+                <!-- code area  -->
+
                 <div class="row">
 
                     <div class="col-md-12">
@@ -101,17 +135,30 @@
                         <div class="panel panel-default">
 
 
-                            <div id="layout">
+                            <div id="layout" style="height: 300px;">
 
                                 <div id="test-editormd">
                                     <textarea style="display:none;"></textarea>
                                 </div>
+                                <div style="">
+                                    <button id="clear" name="clear" class="btn-lg" style="position:absolute;left:40%"
+                                            disabled="disabled">
+                                        清空
+                                    </button>
+                                    <button id="submit" name="submit" class="btn-lg" style="position:absolute;left:50%"
+                                            disabled="disabled">
+                                        提交
+                                    </button>
+                                </div>
                             </div>
+
 
                         </div>
                         <!-- End code area-->
                     </div>
                 </div>
+
+                <!-- /. code area  -->
                 <!-- /. PAGE INNER  -->
             </div>
             <!-- /. PAGE WRAPPER  -->
@@ -123,15 +170,44 @@
 {% endblock %}
 
 {% block js %}
-    <script src="{% static 'js/jquery-2.2.3.js' %}"></script>
+    <script src="{% static 'js/jquery-1.10.2.js' %}"></script>
     <!-- Bootstrap Js -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <!-- Metis Menu Js -->
-
-    <!-- Custom Js -->
-    {#    <script src="{% static 'js/custom-scripts.js' %}"></script>#}
+    <script src="{% static 'js/jquery.metisMenu.js' %}"></script>
+    <!-- editormd Js -->
     <script src="{% static 'js/editor/editormd.js' %}"></script>
+
+
     <script type="text/javascript">
+        {#------初始化左侧导航栏下拉菜单格式#}
+        var mainApp = {
+
+            initFunction: function () {
+                /*MENU
+                ------------------------------------*/
+                $('#main-menu').metisMenu();
+
+                $(window).bind("load resize", function () {
+                    if ($(this).width() < 768) {
+                        $('div.sidebar-collapse').addClass('collapse')
+                    } else {
+                        $('div.sidebar-collapse').removeClass('collapse')
+                    }
+                });
+
+            },
+
+            initialization: function () {
+                mainApp.initFunction();
+
+            }
+
+        };
+        $(document).ready(function () {
+            mainApp.initFunction();
+        });
+        {#------初始化ide界面#}
         var testEditor;
 
         function getCodeValue() {
@@ -140,25 +216,122 @@
 
         $(function () {
             testEditor = editormd("test-editormd", {
-                width: "90%",
-                height: 720,
+                width: "100%",
+                height: 230,
                 watch: false,
                 toolbar: false,
                 codeFold: true,
                 searchReplace: true,
-                placeholder: "Enjoy coding!",
+                placeholder: "请提交代码",
+                autoFocus: false,
                 value: getCodeValue(),
                 theme: (localStorage.theme) ? localStorage.theme : "default",
                 mode: (localStorage.mode) ? localStorage.mode : "python",
                 path: "{% static 'lib/' %}"
             });
 
-            $("#get-code-btn").bind("click", function () {
-                alert(testEditor.getValue());
+            {#清空代码及代码运行结果的内容#}
+            $("#clear").bind("click", function () {
+                testEditor.setValue('');
+                testEditor.autoFocus = true;
             });
 
-            $("#fullscreen-btn").bind("click", function () {
-                testEditor.fullscreen();
+            {#------提交代码执行结果#}
+            $("#submit").bind("click", function () {
+                var course = document.getElementById("course");
+                var code = testEditor.getValue();
+                if (code == '') {
+                    alert("亲你提交的代码是空的哦，请务必填写需要提交的代码啊，拜托了！");
+                } else {
+                    var postData = {
+                        'code': code,
+                        'course_id': course_id,
+                        'chapter_id': chapter_id,
+                        'basic_contant_id': contant_id
+                    };
+                    {#------在课程对话框中显示代码#}
+                    var container = document.createElement('div');
+                    container.setAttribute('class', "alert alert-info");
+                    container.setAttribute('style', "width: 55%;text-align: left;float:right");
+                    container.setAttribute('disabled', "disabled");
+                    {#-------进行换行符转换，显示换行#}
+
+                    var i;
+                    var result = "亲，你提交的代码是：</br>";
+                    var c;
+                    for (i = 0; i < code.length; i++) {
+                        c = code.substr(i, 1);
+                        if (c == "\n")
+                            result = result + "</br>";
+                        else if (c != "\r")
+                            result = result + c;
+
+                    }
+                    container.innerHTML = result;
+                    course.appendChild(container);
+                    container.focus();
+                    {#-------清空代码框#}
+                    testEditor.setValue('');
+                    {# -----提交代码进行测试#}
+                    $.ajax({
+                        async: false,
+                        cache: false,
+                        type: 'POST',
+                        url: "{% url 'basic_course_codetest' %}",
+                        dataType: "json",
+                        data: postData,
+                        error: function () {
+                            alert('请求失败');
+                        },
+                        success: function (data) {
+                            contant_id = data.contant_id;
+                            //将代码执行结果显示在课程对话框中
+                            var content = document.createElement('div');
+                            content.setAttribute('class', "alert alert-success");
+                            content.setAttribute('style', "width: 55%;text-align: left;float:left");
+
+                            content.setAttribute('disabled', "disabled");
+                            {#------转换执行结果格式，增加换行符<br/>#}
+                            var str = data.result.output;
+                            var i;
+                            var result = "代码的运行结果是：</br>";
+                            var c;
+                            for (i = 0; i < str.length; i++) {
+                                c = str.substr(i, 1);
+                                if (c == "\n")
+                                    result = result + "</br>";
+                                else if (c != "\r")
+                                    result = result + c;
+
+                            }
+                            content.innerHTML = result;
+                            course.appendChild(content);
+                            if (data.success) {
+                                document.getElementById('submit').disabled = true;
+                                document.getElementById('submit').style.backgroundColor = 'grey';
+                                document.getElementById('next').disabled = false;
+                                document.getElementById('next').style.backgroundColor = '#82C6E0';
+                                document.getElementById('clear').disabled = true;
+                                document.getElementById('clear').style.backgroundColor = 'grey';
+
+                            }
+                            //将代码执行结果是否正确显示在课程对话框中
+                            var content = document.createElement('div');
+                            content.setAttribute('class', "alert alert-success");
+                            content.setAttribute('style', "width: 55%;text-align: left;float:left");
+                            content.innerHTML = data.contant_info;
+                            course.appendChild(content);
+                            content.focus();
+                            //设置课程对话框定位在最底部
+                            course.scrollTop = course.scrollHeight;
+                            //设置窗口定位在顶部
+                            window.scrollTo(0, 0);
+                        }
+
+                    });
+                }
+
+
             });
 
             var select = $("#themes");
@@ -209,6 +382,8 @@
                 testEditor.setValue(code);
             });
         });
+
     </script>
+    <script src="{% static 'js/learn.js' %}"></script>
 
 {% endblock %}
