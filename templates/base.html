@@ -52,10 +52,10 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">课程</a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a href="{% url 'learn_basic' %}">Python基础课程</a>
+                                <a href="{% url 'basic_course' %}">Python基础课程</a>
                             </li>
                             <li>
-                                <a href="{% url 'learn_practice' %}">Python实战课程</a>
+                                <a href="{% url 'practice_course' %}">Python实战课程</a>
                             </li>
                         </ul>
                     </li>
@@ -63,7 +63,7 @@
                         <a href="{% url 'ide' %}">编程环境</a>
                     </li>
                     <li class="dropdown">
-                        <a href="{% url 'course' %}" class="dropdown-toggle" data-toggle="dropdown">网络运维工具集</a>
+                        <a href="{% url 'tool_display' %}" class="dropdown-toggle" data-toggle="dropdown">网络运维工具集</a>
                     </li>
                     <!-- Django的 if 模板语句 -->
                     {% if user.is_authenticated %}
@@ -71,7 +71,7 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {{ user.username }}
+                                {{ user.username | safe}}
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
@@ -106,7 +106,7 @@
         <div class="row">
             <div class="col-md-12 text-center">
                 <p>Copyright &copy; 2019.
-                    <a href="http://www.happypython.com/" target="_blank">快乐学Python</a> All rights reserved.</p>
+                    快乐学Python  All rights reserved.</p>
             </div>
         </div>
     </div>

@@ -32,14 +32,21 @@ urlpatterns = [
     path('basic_course_codetest/',views.basic_course_post,name='basic_course_codetest'),
     path('practice_course_codetest/',views.practice_course_post,name='practice_course_codetest'),
     path('basic_code_hint/',views.basic_course_hint,name='basic_code_hint'),
-    path('practice_code_hint/',views.practice_course_hint,name='practice_course_hint'),
+    path('practice_code_hint/',views.practice_course_hint,name='practice_code_hint'),
     path('basic_learned_time/',views.basic_learned_time,name='basic_learned_time'),
     path('practice_learned_time/',views.practice_learned_time,name='practice_learned_time'),
     path('learn_basic/',views.learn_basic,name='learn_basic'),
     path('learn_practice/',views.learn_practice,name='learn_practice'),
-    path('course/',views.course,name='course'),
+    path('course/P<course_type>(\w+)/P<course_id>(\d+)/',views.course,name='course'),
     path('user_info_modify/', views.user_info_modify, name='user_info_modify'),
     path('user_course_locate/', views.user_course_locate, name='user_course_locate'),
+    path('tool_display/', views.tool_display, name='tool_display'),
+    path(r'tool_download/P<tool_id>(\d+)/',views.tool_download,name='tool_download'),
+    path('basic_course/',views.basic_course,name='basic_course'),
+    path('practice_course/',views.practice_course,name='practice_course'),
+    path('forget_passwd/', views.forget_passwd,name='forget_passwd'),
+    path('forget_passwd1/',views.forget_passwd1,name="forget_passwd1"),
+
 
 
     #path('basic_course_post/',views.basic_course_post,name='basic_course_post'),

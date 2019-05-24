@@ -10,11 +10,15 @@ var pre_course_id = '0';
 var pre_chapter_id = '0';
 //本页面中上次学习的章节内容号
 var pre_contant_id = '0';
-
+//用户选择课程的类型，默认为基础课程
+var course_type = 'basic';
+//代码提交时间控制
+var post_time_interval=10;
 //本章课程学习持续时间
 var last_time = 0;
 window.setInterval(function () {
     last_time++;
+    post_time_interval++;
 }, 1000);
 
 window.onload = course_getFocus;
@@ -52,17 +56,30 @@ $(window).bind('beforeunload', function (e) {
 
     //当页面间切换时进行学习时长插入，重新刷新页面则不进行时间更新
     if (course_id != '0' && chapter_id != '0') {
-        var postData = {
-            'course_id': course_id,
-            'chapter_id': chapter_id,
-            'basic_contant_id': contant_id,
-            'last_time': last_time
-        };
+
+        //判断课程类型，设置请求路径及发送字段key
+        if (course_type == 'basic') {
+            var postData = {
+                'course_id': course_id,
+                'chapter_id': chapter_id,
+                'basic_contant_id': contant_id,
+                'last_time': last_time
+            };
+            var url_name = "/basic_learned_time/"
+        } else {
+            var postData = {
+                'course_id': course_id,
+                'chapter_id': chapter_id,
+                'practice_contant_id': contant_id,
+                'last_time': last_time
+            };
+            var url_name = "/practice_learned_time/"
+        }
         $.ajax({
             async: false,
             cache: false,
             type: 'POST',
-            url: "../basic_learned_time/",
+            url: url_name,
             dataType: "json",
             data: postData,
             error: function () {
@@ -103,18 +120,31 @@ function getCont(c) {
 //如果之前学习了课程，更新课程学习时长，否则不更新学习时长
     if (pre_course_id != '0') {
 
-        var beforeData = {
-            'course_id': pre_course_id,
-            'chapter_id': pre_chapter_id,
-            'basic_contant_id': pre_contant_id,
-            'last_time': last_time
-        };
+        //判断课程类型，设置请求路径及发送字段key
+        if (course_type == 'basic') {
+            var beforeData = {
+                'course_id': pre_course_id,
+                'chapter_id': pre_chapter_id,
+                'basic_contant_id': pre_contant_id,
+                'last_time': last_time
+            };
+            var url_name = "/basic_learned_time/"
+        } else {
+            var beforeData = {
+                'course_id': pre_course_id,
+                'chapter_id': pre_chapter_id,
+                'practice_contant_id': pre_contant_id,
+                'last_time': last_time
+            };
+            var url_name = "/practice_learned_time/"
+        }
+
 
         $.ajax({
             async: false,
             cache: false,
             type: 'POST',
-            url: "../basic_learned_time/",
+            url: url_name,
             dataType: "json",
             data: beforeData,
             error: function () {
@@ -146,13 +176,26 @@ function getCont(c) {
 
 
     //通知后台用户选择的课程号、章节号
-    var postData = {'course_id': course_id, 'chapter_id': chapter_id, 'basic_contant_id': contant_id};
+    //判断课程类型，设置请求路径及发送字段key
+    if (course_type == 'basic') {
+        var postData = {'course_id': course_id,
+            'chapter_id': chapter_id,
+            'basic_contant_id': contant_id};
+
+        var url_name_next = "/basic_course_next/";
+    } else {
+        var postData = {'course_id': course_id,
+            'chapter_id': chapter_id,
+            'practice_contant_id': contant_id};
+
+        var url_name_next = "/practice_course_next/";
+    }
 
     $.ajax({
         async: false,
         cache: false,
         type: 'POST',
-        url: "../basic_course_next/",
+        url:url_name_next,
         dataType: "json",
         data: postData,
         error: function () {
@@ -167,7 +210,13 @@ function getCont(c) {
             var content = document.createElement('div');
             content.setAttribute('class', "alert alert-success");
             content.setAttribute('style', "width: 55%;text-align: left;float:left");
-            content.innerHTML = '下面我们来学习' + data.basic_name + '课程中的' + data.basic_chapter_name;
+            if(course_type=='basic'){
+                content.innerHTML = '下面我们来学习' + data.basic_name + '课程中的' + data.basic_chapter_name;
+
+            }else{
+                content.innerHTML = '下面我们来学习' + data.practice_name + '课程中的' + data.practice_chapter_name;
+
+            }
 
             //将生成的提示内容覆盖之前的课程学习提示
             var course = document.getElementById("course");
@@ -186,12 +235,25 @@ function getCont(c) {
 
 //------请求下一句课程
 function nextContent(c) {
-    var postData = {'course_id': course_id, 'chapter_id': chapter_id, 'basic_contant_id': contant_id};
+    //判断课程类型，设置请求路径及发送字段key
+    if (course_type == 'basic') {
+        var postData = {'course_id': course_id,
+            'chapter_id': chapter_id,
+            'basic_contant_id': contant_id};
+
+        var url_name_next = "/basic_course_next/";
+    } else {
+        var postData = {'course_id': course_id,
+            'chapter_id': chapter_id,
+            'practice_contant_id': contant_id};
+
+        var url_name_next = "/practice_course_next/";
+    }
     $.ajax({
         async: false,
         cache: false,
         type: 'POST',
-        url: "../basic_course_next/",
+        url: url_name_next,
         dataType: "json",
         data: postData,
         error: function () {
@@ -203,19 +265,19 @@ function nextContent(c) {
             var content = document.createElement('div');
             content.setAttribute('class', "alert alert-success");
             content.setAttribute('style', "width: 55%;text-align: left;float:left");
-            if(data.isImg){
+            if (data.isImg) {
                 //<img src="{% static 'img/about.jpg' %}">
-                    var innerimage=document.createElement('img');
-                    innerimage.src=data.contant_info;
-                    content.appendChild(innerimage);
+                var innerimage = document.createElement('img');
+                innerimage.src = data.contant_info;
+                content.appendChild(innerimage);
 
-            }else{
+            } else {
                 content.innerHTML = data.contant_info;
             }
             var course = document.getElementById("course");
             course.appendChild(content);
             //设置课程对话框定位在最底部
-            course.scrollTop=course.scrollHeight;
+            course.scrollTop = course.scrollHeight;
             //设置窗口定位在顶部
             window.scrollTo(0, 0);
             if (data.input) {
@@ -248,12 +310,25 @@ function nextContent(c) {
 
 //-----请求提示答案
 function askHint(c) {
-    var postData = {'course_id': course_id, 'chapter_id': chapter_id, 'basic_contant_id': contant_id};
+    //判断课程类型，设置请求路径及发送字段key
+    if (course_type == 'basic') {
+        var postData = {'course_id': course_id,
+            'chapter_id': chapter_id,
+            'basic_contant_id': contant_id};
+
+        var url_name_hint = "/basic_code_hint/";
+    } else {
+        var postData = {'course_id': course_id,
+            'chapter_id': chapter_id,
+            'practice_contant_id': contant_id};
+
+        var url_name_hint = "/practice_code_hint/";
+    }
     $.ajax({
         async: false,
         cache: false,
         type: 'POST',
-        url: "../basic_code_hint/",
+        url: url_name_hint,
         dataType: "json",
         data: postData,
         error: function () {
@@ -261,8 +336,8 @@ function askHint(c) {
         },
         success: function (data) {
             // $("#result").val(data.output)
-            contant_id = data.cotent_id;
-            alert(data.codehint)
+            contant_id = data.contant_id;
+            alert(data.codehint);
         }
     });
 }

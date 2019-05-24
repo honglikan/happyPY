@@ -2,7 +2,7 @@
 import os, sys, subprocess, tempfile, time
 
 # 创建临时文件夹,返回临时文件夹路径
-TempFile = tempfile.mkdtemp(suffix='_test', prefix='python_')
+TempFile = tempfile.mkdtemp(prefix='python_')
 # 文件名
 FileNum = int(time.time() * 1000)
 # python编译器位置
@@ -57,6 +57,12 @@ def main(code):
         r["code"] = 'Error'
         r["output"] = decode(e.output)
         return r
+    except subprocess.TimeoutExpired as e:
+        # e.output是错误信息标准输出
+        # 错误返回的数据
+        r["code"] = 'Error'
+        r["output"] = '您的程序已超时'
+        return r
     else:
         # 成功返回的数据
         r['output'] = outdata
@@ -84,6 +90,12 @@ def correct(file):
         # 错误返回的数据
         r["code"] = 'Error'
         r["output"] = decode(e.output)
+        return r
+    except subprocess.TimeoutExpired as e:
+        # e.output是错误信息标准输出
+        # 错误返回的数据
+        r["code"] = 'Error'
+        r["output"] = '您的程序已超时'
         return r
     else:
         # 成功返回的数据

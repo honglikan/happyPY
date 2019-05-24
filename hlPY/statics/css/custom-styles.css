@@ -28,7 +28,7 @@ body {
     margin:10px 20px 10px 0px;
     background-color:transparent;
     padding:10px;
-    min-height:1200px;
+    min-height:600px;
 }
 
 .text-center {
@@ -325,10 +325,13 @@ padding-top: 4px;
 	color:#fff;
 	background:transparent;
 	text-shadow:none;
+    text-align: left;
 	
 }
 .sidebar-collapse > .nav > li > a {
 	padding:15px 10px;
+    text-align: left;
+    font-size:17px;
 }
 .sidebar-collapse > .nav > li {
 	border-bottom: 1px solid rgba(107, 108, 109, 0.19);
@@ -404,9 +407,9 @@ line-height: 1.428571429;
  @media(min-width:768px) {
      #page-wrapper{
                margin: 0 0 0 260px;
-        padding: 100px 30px;
+        padding: 20px 30px;
 
-        min-height: 1200px;
+        min-height: 600px;
 		
     }
 	
