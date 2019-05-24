@@ -93,7 +93,7 @@ $(function () {
             $(this).parent().next("div").text("");
             $(this).parent().next("div").css("color", '#ccc');
         } else if ($(this).val() != $("input[name='password']").val()) {
-            $(this).parent().next("div").text("两次密码不匹配");
+            $(this).parent().next("div").text("两次密码不相同");
             $(this).parent().next("div").css("color", 'red');
         } else {
             $(this).parent().next("div").text("");

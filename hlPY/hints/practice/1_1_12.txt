@@ -1,0 +1,2 @@
+seg_list = jieba.cut("轻松快乐学Python,化繁为简so fashion", cut_all=True)
+print("Full Mode: " + "/ ".join(seg_list)) 

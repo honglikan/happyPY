@@ -1,0 +1,221 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>重置密码页面</title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/styleDenglu.css" %}">
+</head>
+
+<script src="{% static "js/jquery-1.12.4.min.js" %}" type="text/javascript" charset="utf-8"></script>
+<script src="{% static 'js/jquery-2.2.3.js' %}"></script>
+<script>
+    $(function () {
+        var wait = 60 * 5;
+
+        $("#btn").disabled = false;
+        function time(o) {
+            if (wait == 0) {
+                o.removeAttribute("disabled");
+                o.value = "获取验证码";
+                wait = 60 * 5;
+            } else {
+                o.setAttribute("disabled", true);
+                o.value = "重新发送(" + wait + ")";
+                wait--;
+                setTimeout(function () {
+                        time(o)
+                    },
+                    1000)
+            }
+        }
+        $("#btn").click(function () {
+                time(this);
+            }   //调用time函数，实现倒计时
+        )
+
+        //将email发至后端
+        $("#btn").click(function () {
+
+            var email = $("#emailid").val();
+            var buttonid = "emailid";
+            $.ajax({
+                type: "post",
+                url: "../forget_passwd1/",
+                data: {
+                    "email": email,
+                    "buttonid": buttonid
+                },
+
+                dataType: 'json',
+                success: function (data) {// 这里的data就是json格式的数据
+
+                    if (data.result == "error") {
+                        wait = 0;
+                        $("#btn").disabled = false;
+                        $("#emailid").parent().next("div").text("请输入正确邮箱地址！");
+                        $("#emailid").parent().next("div").css("color", 'red');
+                        return
+                    } else {
+                        $("#btn").disabled = true;
+                        $("#emailid").parent().next("div").text("");
+                        $("#emailid").parent().next("div").css("color", 'red');
+                        return
+                    };
+                },
+                error: function () {
+                    alert("ajax失败");
+                }
+            })
+        })
+
+        $("input[name='password2']").blur(function () {
+            if ($("input[name='password2']").val() != $("input[name='password']").val()) {
+                $(this).parent().next("div").text("两次密码不相同");
+                $(this).parent().next("div").css("color", 'red');
+                $("#login_submit_btn1").attr("disabled", true);
+                return;
+            } else {
+                $(this).parent().next("div").text("");
+                $(this).parent().next("div").css("color", 'red');
+                $("#login_submit_btn1").attr("disabled", false);
+                return;
+            }
+        })
+        $("#identifyid").blur(function () {
+                if ($("#identifyid").val() == '') {
+                    $("#identifyT").text("验证码不能为空！");
+                    $("#identifyT").css("color", 'red');
+                    $("#login_submit_btn1").attr("disabled", true);
+                    return;
+                } else {
+                    $("#identifyT").text("");
+                    $("#identifyT").css("color", 'red');
+                    $("#login_submit_btn1").attr("disabled", false);
+                    return;
+                }
+            }
+        )
+        //将验证码和新密码发至后台
+        $("#login_submit_btn1").click(function (e) {
+            if (wait != 300) {
+                var email = $("#emailid").val();
+                var identify = $("#identifyid").val();
+                var password = $("#passwordid").val();
+                var buttonid = "passwordid";
+                $.ajax({
+                    type: "post",
+                    url: "../forget_passwd1/",
+                    data: {
+                        "email": email,
+                        "password": password,
+                        "identify": identify,
+                        "buttonid": buttonid
+                    },
+                    dataType: 'json',
+                    success: function (data) {// 这里的data就是json格式的数据
+                        if (data.result == "error") {
+                            $("#identifyT").text("验证码不正确");
+                            $("#identifyT").css("color", 'red');
+
+
+                        } else {
+
+                            $("#identifyT").text("");
+                            $("#identifyT").css("color", 'red');
+                            alert("密码修改成功，请登录！");
+                            window.location.href='{% url "login" %}';
+                            $("#login_submit_btn1").attr("disabled", false);
+
+                        }
+                    },
+                    error: function () {
+                        alert("ajax失败");
+                    }
+                })
+                return;
+            } else {
+                alert("验证码已过期，请重新输入！");
+                $("#login_submit_btn1").disabled = true;
+                return;
+            }
+        })
+    })
+</script>
+
+<body>
+<header>
+    <a href="#" class="logo"></a>
+    <div class="desc">找回密码</div>
+</header>
+<form action=" " method="post">
+    {% csrf_token %}
+    <div class="register-box">
+        <label>邮 箱
+            <input AutoComplete="Off" maxlength="20" type="text" id="emailid" name="username" placeholder="请输入已绑定邮箱">
+        </label>
+        <div class="tips">
+        </div>
+    </div>
+    {# <div> <input type="button" id="btn" class="btn_mfyzm" value="获取验证码" /></div>#}
+
+    <div class="register-box" style="width: 400px;height: 52px; ">
+        <div style="float: left;">
+            <label>验 证 码
+                <input AutoComplete="Off" maxlength="20" id="identifyid" name="identify" placeholder="请注意！验证码区分大小写！">
+            </label></div>
+        <div style="height:50px;float: right;padding-top:1px">
+            <input style="height: 50px; width: 110px;padding:5px 12px;" type="button" id="btn" class="btn_mfyzm"
+                   value="获取验证码"/>
+        </div>
+
+        <div class="tips" id="identifyT" style="margin-top: 52px">
+
+        </div>
+    </div>
+
+    <div class="register-box">
+        <label for="username" class="other_label">设 置 密 码
+            <input AutoComplete="Off" maxlength="20" name="password" type="password" placeholder="建议至少使用两种字符组合">
+        </label>
+        <div class="tips">
+
+        </div>
+    </div>
+    <div class="register-box">
+        <label for="username" class="other_label">确 认 密 码
+            <input AutoComplete="Off" maxlength="20" name="password2" id="passwordid" type="password"
+                   placeholder="请再次输入密码">
+        </label>
+        <div class="tips">
+
+        </div>
+    </div>
+    <div class="submit_btn">
+{#        {% if error %}#}
+{#            <p style="color: red;">{{ error }}</p>#}
+{#        {% endif %}#}
+        <button type="button" id="login_submit_btn1">重 置 密 码</button>
+
+{#        {% if success %}#}
+{#            <script language="javascript" type="text/javascript">#}
+{#                alert("密码修改成功");#}
+{#                window.location.href = "{% url 'login' %}";#}
+{#            </script>#}
+{#        {% endif %}#}
+    </div>
+    <div>
+
+    </div>
+    <div>
+        <a href="{% url 'login' %}">返回登录？</a> &#12288;&#12288;&#12288;&#12288;&#12288;
+        &#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;
+        <a href="{% url 'register' %}">立即注册？</a>
+    </div>
+</form>
+<div style="text-align:center;margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';">
+
+</div>
+
+</body>
+</html>

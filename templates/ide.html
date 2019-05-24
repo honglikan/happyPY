@@ -29,8 +29,8 @@
                 <textarea style="display:none;"></textarea>
             </div>
         </div>
-        <button id="clear" name="clear">清空</button>
-        <button id="submit" name="submit">提交</button>
+        <button id="clear" class="btn-lg" name="clear" style="background-color: #82C6E0">清空</button>
+        <button id="submit" class="btn-lg" name="submit" style="background-color: #82C6E0">提交</button>
     </div>
     <!-- End code area-->
 
@@ -51,7 +51,7 @@
     <!-- Bootstrap Js -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <!-- Metis Menu Js -->
-
+    <script src="{% static 'js/ide.js' %}"></script>
     <!-- Custom Js -->
     {#    <script src="{% static 'js/custom-scripts.js' %}"></script>#}
     <script src="{% static 'js/editor/editormd.js' %}"></script>
@@ -90,7 +90,11 @@
                 if(code==''){
                     alert("亲你提交的代码是空的哦，请务必填写需要提交的代码啊，拜托了！");
                 }
+                else if(post_time_interval<10){
+                    alert('亲你代码提交得过于频繁，请稍等再试哦~~~~');
+                }
                 else{
+                    post_time_interval=0;
                     var postData = {'code': code};
                 $.ajax({
                     async: false,

@@ -1,8 +1,3 @@
-var phonenumber
-var course_id
-var type
-var course_name
-
 $(function () {
 
     $("#changeinfo").click(function (e) {    //通过“修改信息”这个按钮，将修改信息的表单显示出来
@@ -17,13 +12,14 @@ $(function () {
 
     //对修改的信息进行验证
     $("#changeconfirm").click(function (e) {
-        if (phonenumber !=$("input[name='phone']").val()){
+        //提交时，判定手机格式及内容
+        if (phonenumber != $("input[name='phone']").val()) {
             if ($("input[name='phone']").val().substr(0, 1) != 1 || $("input[name='phone']").val().length != 11 || $("input[name='phone']").val().match(/[^0-9]/g)) {
                 $("input[name='phone']").parent().next("div").text("手机号格式不正确");
                 $("input[name='phone']").parent().next("div").css("color", 'red');
-            e.preventDefault();
-            return;
-        }
+                 $("#changeconfirm").attr("disabled", true);
+                return;
+            }
             return;
         }
         //提交时，判定邮箱格式及内容
@@ -35,26 +31,73 @@ $(function () {
             $("input[name='email']").parent().next("div").text("邮箱格式不正确");
             $("input[name='email']").parent().next("div").css("color", 'red');
             e.preventDefault();
-            }
-        else {
+        } else {
             $("input[name='email']").parent().next("div").text("");
         }
-        //提交时，判定手机格式及内容
-
 
         //提交时，判定密码是否一致
         if ($("input[name='password2']").val() != $("input[name='password']").val()) {
-            $("input[name='password2']").parent().next("div").text("两次密码不匹配");
+            $("input[name='password2']").parent().next("div").text("两次密码不相同");
             $("input[name='password2']").parent().next("div").css("color", 'red');
             e.preventDefault();
         } else {
             $("input[name='password2']").parent().next("div").text("");
         }
+    })
+$("#changeconfirm").click(function () {
+            var phone = $("input[name='phone']").val();
+            var password = $("input[name='password2']").val();
+            var email = $("input[name='email']").val();
+
+        $.ajax({
+                type: "post",
+                url: "../user_info_modify/",
+                data: {
+                    "phone":phone,
+                    "password":password,
+                    "email":email
+                },
+                dataType: 'json',
+                success: function (data) {// 这里的data就是json格式的数据
+
+                    if (data.error == "该邮箱已用于注册") {
+                        $("#backinfo").text("该邮箱已用于注册！");
+                        $("#backinfo").css("color", 'red');
+                        e.preventDefault();
+                        return
+                    } else if (data.error == "该手机号已用于注册")
+                    {
+                        $("#backinfo").text("该手机号已用于注册！");
+                        $("#backinfo").css("color", 'red');
+                        e.preventDefault();
+                        return
+                    }else if(data.status == "密码修改成功"){
+                            $("#backinfo").text("修改成功！");
+                            $("#backinfo").css("color", 'white');
+                            alert("密码修改成功，请重新登录！");
+                            window.location.href='../login';
+                            return;
+
+                    } else {
+                            $("#backinfo").text("修改成功！");
+                            $("#backinfo").css("color", 'white');
+                            alert("修改成功！");
+                            window.location.href='../user_page';
+                            return;
+                        }
 
 
+                },
+                error: function () {
+                    alert("ajax失败");
+                }
+
+
+
+        })
     })
 
-      //当光标移动时，验证手机号的格式
+    //当光标移动时，验证手机号的格式
     $("input[name='phone']").blur(function () {
         if ($(this).val().length == 0) {
             $(this).parent().next("div").text("");
@@ -62,8 +105,10 @@ $(function () {
         } else if ($(this).val().length != 11) {
             $(this).parent().next("div").text("手机号格式不正确");
             $(this).parent().next("div").css("color", 'red');
+            $("#changeconfirm").attr("disabled", true);
         } else {
             $(this).parent().next("div").text("");
+            $("#changeconfirm").attr("disabled", false);
         }
     })
     //当光标移动时，验证邮箱的格式
@@ -74,8 +119,10 @@ $(function () {
         } else if (!$(this).val().match(/^[a-zA-Z0-9_-]+@([a-zA-Z0-9]+\.)+(com|cn|net|org)$/)) {
             $(this).parent().next("div").text("邮箱格式不正确");
             $(this).parent().next("div").css("color", 'red');
+            $("#changeconfirm").attr("disabled", true);
         } else {
             $(this).parent().next("div").text("");
+            $("#changeconfirm").attr("disabled", false);
         }
     })
     //当光标移动时，验证密码的内容及格式
@@ -90,13 +137,15 @@ $(function () {
             $(this).parent().next("div").text("");
         }
     })
-        //当光标移动时，验证密码的内容及格式
+    //当光标移动时，验证密码的内容及格式
     $("input[name='password2']").blur(function () {
         if ($(this).val() != $("input[name='password']").val()) {
-            $(this).parent().next("div").text("两次密码不匹配");
+            $(this).parent().next("div").text("两次密码不相同");
             $(this).parent().next("div").css("color", 'red');
+            $("#changeconfirm").attr("disabled", true);
         } else {
             $(this).parent().next("div").text("");
+            $("#changeconfirm").attr("disabled", false);
         }
     })
 
