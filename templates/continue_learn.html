@@ -78,7 +78,7 @@
 
                                 <div id="start" class="alert alert-success" tabindex="0"
                                      style="width: 55%;text-align: left;">
-                                    下面我们继续来学习+ {{ basic_name }} + 课程中的+ {{ basic_chapter_name }}
+                                    下面我们继续来学习{{ basic_name }}课程中的{{ chapter_name }}
                                 </div>
 
 
@@ -88,7 +88,8 @@
                                 <button class="btn-lg" id="hint" disabled="disabled" onclick="askHint(this)">
                                     查看提示
                                 </button>
-                                <button class="btn-lg" id="next" disabled="disabled" onclick="nextContent(this)"
+                                <button class="btn-lg" id="next" style="background-color: #82C6E0"
+                                        onclick="nextContent(this)"
                                         style="background-color: grey">
                                     下一个
                                 </button>
@@ -218,7 +219,11 @@
                         c = code.substr(i, 1);
                         if (c == "\n")
                             result = result + "</br>";
-                        else if (c != "\r")
+                        else if (c == '\t') {
+                            result = result + '&nbsp;' + '&nbsp;' + '&nbsp;' + '&nbsp;';
+                        } else if (c == ' ') {
+                            result = result + '&nbsp;';
+                        } else if (c != "\r")
                             result = result + c;
 
                     }
@@ -255,7 +260,11 @@
                                 c = str.substr(i, 1);
                                 if (c == "\n")
                                     result = result + "</br>";
-                                else if (c != "\r")
+                                else if (c == '\t') {
+                                    result = result + '&nbsp;' + '&nbsp;' + '&nbsp;' + '&nbsp;';
+                                } else if (c == ' ') {
+                                    result = result + '&nbsp;';
+                                } else if (c != "\r")
                                     result = result + c;
 
                             }
@@ -343,9 +352,9 @@
     </script>
     <script src="{% static 'js/learn.js' %}"></script>
     <script>
-        course_id ={{ biasic_id }};
-        chapter_id =
-        {{ chapter_id }}
+        course_id ={{ basic_id }};
+        chapter_id ={{ chapter_id }};
+        contant_id ={{ contant_id }};
     </script>
 
 {% endblock %}
