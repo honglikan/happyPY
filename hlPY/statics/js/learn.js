@@ -13,7 +13,7 @@ var pre_contant_id = '0';
 //用户选择课程的类型，默认为基础课程
 var course_type = 'basic';
 //代码提交时间控制
-var post_time_interval=10;
+var post_time_interval = 10;
 //本章课程学习持续时间
 var last_time = 0;
 window.setInterval(function () {
@@ -178,15 +178,19 @@ function getCont(c) {
     //通知后台用户选择的课程号、章节号
     //判断课程类型，设置请求路径及发送字段key
     if (course_type == 'basic') {
-        var postData = {'course_id': course_id,
+        var postData = {
+            'course_id': course_id,
             'chapter_id': chapter_id,
-            'basic_contant_id': contant_id};
+            'basic_contant_id': contant_id
+        };
 
         var url_name_next = "/basic_course_next/";
     } else {
-        var postData = {'course_id': course_id,
+        var postData = {
+            'course_id': course_id,
             'chapter_id': chapter_id,
-            'practice_contant_id': contant_id};
+            'practice_contant_id': contant_id
+        };
 
         var url_name_next = "/practice_course_next/";
     }
@@ -195,7 +199,7 @@ function getCont(c) {
         async: false,
         cache: false,
         type: 'POST',
-        url:url_name_next,
+        url: url_name_next,
         dataType: "json",
         data: postData,
         error: function () {
@@ -210,10 +214,10 @@ function getCont(c) {
             var content = document.createElement('div');
             content.setAttribute('class', "alert alert-success");
             content.setAttribute('style', "width: 55%;text-align: left;float:left");
-            if(course_type=='basic'){
+            if (course_type == 'basic') {
                 content.innerHTML = '下面我们来学习' + data.basic_name + '课程中的' + data.basic_chapter_name;
 
-            }else{
+            } else {
                 content.innerHTML = '下面我们来学习' + data.practice_name + '课程中的' + data.practice_chapter_name;
 
             }
@@ -237,15 +241,19 @@ function getCont(c) {
 function nextContent(c) {
     //判断课程类型，设置请求路径及发送字段key
     if (course_type == 'basic') {
-        var postData = {'course_id': course_id,
+        var postData = {
+            'course_id': course_id,
             'chapter_id': chapter_id,
-            'basic_contant_id': contant_id};
+            'basic_contant_id': contant_id
+        };
 
         var url_name_next = "/basic_course_next/";
     } else {
-        var postData = {'course_id': course_id,
+        var postData = {
+            'course_id': course_id,
             'chapter_id': chapter_id,
-            'practice_contant_id': contant_id};
+            'practice_contant_id': contant_id
+        };
 
         var url_name_next = "/practice_course_next/";
     }
@@ -264,15 +272,33 @@ function nextContent(c) {
             contant_id = data.contant_id;
             var content = document.createElement('div');
             content.setAttribute('class', "alert alert-success");
-            content.setAttribute('style', "width: 55%;text-align: left;float:left");
+            content.setAttribute('style', "width: 55%;text-align: left;float:left;word-wrap:break-word");
             if (data.isImg) {
                 //<img src="{% static 'img/about.jpg' %}">
                 var innerimage = document.createElement('img');
                 innerimage.src = data.contant_info;
                 content.appendChild(innerimage);
+                innerimage.style.width='100%';
 
             } else {
-                content.innerHTML = data.contant_info;
+                var str = data.contant_info;
+                var i;
+                var result = "";
+                var c;
+                for (i = 0; i < str.length; i++) {
+                    c = str.substr(i, 1);
+                    if (c == "\n")
+                        result = result + "</br>";
+                    else if (c == '\t') {
+                        result = result + '&nbsp;' + '&nbsp;' + '&nbsp;' + '&nbsp;';
+                    } else if (c == ' ') {
+                        result = result + '&nbsp;';
+                    } else if (c != "\r"){
+                        result = result + c;
+                    }
+
+                }
+                content.innerHTML = result;
             }
             var course = document.getElementById("course");
             course.appendChild(content);
@@ -312,15 +338,19 @@ function nextContent(c) {
 function askHint(c) {
     //判断课程类型，设置请求路径及发送字段key
     if (course_type == 'basic') {
-        var postData = {'course_id': course_id,
+        var postData = {
+            'course_id': course_id,
             'chapter_id': chapter_id,
-            'basic_contant_id': contant_id};
+            'basic_contant_id': contant_id
+        };
 
         var url_name_hint = "/basic_code_hint/";
     } else {
-        var postData = {'course_id': course_id,
+        var postData = {
+            'course_id': course_id,
             'chapter_id': chapter_id,
-            'practice_contant_id': contant_id};
+            'practice_contant_id': contant_id
+        };
 
         var url_name_hint = "/practice_code_hint/";
     }

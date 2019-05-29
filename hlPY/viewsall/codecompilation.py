@@ -110,7 +110,16 @@ def correct(file):
 
 if __name__ == '__main__':
   #code = "import math           math.sqrt(16)"
-  file = 'E:\\python\\happyPY\\hlPY\\hints\\test.txt'
-  print(correct(file))
+
+  code = "from __future__ import unicode_literals import matplotlib.pyplot as plt   from PIL import Image import numpy as np import jieba from wordcloud import WordCloud, ImageColorGenerator text = open('F:\\学习\\python\\python小说文本分析\\laojiumen.txt', 'r', encoding='utf-8').read() cut_text = jieba.cut(text, cut_all=False) result = '/'.join(cut_text) image = Image.open('C:\\Users\\liuxi\\Pictures\\logo2.PNG') graph = np.array(image) wc = WordCloud(font_path='simkai.ttf', background_color='white', max_font_size=50,mask=graph) wc.generate(result) image_color = ImageColorGenerator(graph)  wc.recolor(color_func=image_color) plt.figure('词云图') plt.imshow(wc)  plt.axis('off')  plt.show()"
+  result=main(code)
+  file = 'E:\\python\\happyPY\\hlPY\\results\\practice\\test.txt'
+  result1=correct(file)
+  print(result)
+  print(result1)
+  if result == result1:
+      print('yes')
+  else:
+      print('no')
 
 

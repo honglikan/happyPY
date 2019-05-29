@@ -325,7 +325,7 @@
                         {#------在课程对话框中显示代码#}
                         var container = document.createElement('div');
                         container.setAttribute('class', "alert alert-info");
-                        container.setAttribute('style', "width: 55%;text-align: left;float:right");
+                        container.setAttribute('style', "width: 55%;text-align: left;float:right;word-wrap:break-word");
                         container.setAttribute('disabled', "disabled");
                         {#-------进行换行符转换，显示换行#}
 
@@ -334,10 +334,15 @@
                         var c;
                         for (i = 0; i < code.length; i++) {
                             c = code.substr(i, 1);
-                            if (c == "\n")
+                            if (c == "\n") {
                                 result = result + "</br>";
-                            else if (c != "\r")
+                            } else if (c == '\t') {
+                                result = result + '&nbsp;' + '&nbsp;' + '&nbsp;' + '&nbsp;';
+                            } else if (c == ' ') {
+                                result = result + '&nbsp;';
+                            } else if (c != "\r") {
                                 result = result + c;
+                            }
 
                         }
                         container.innerHTML = result;
@@ -363,7 +368,7 @@
                                 //将代码执行结果显示在课程对话框中
                                 var content = document.createElement('div');
                                 content.setAttribute('class', "alert alert-success");
-                                content.setAttribute('style', "width: 55%;text-align: left;float:left");
+                                content.setAttribute('style', "width: 55%;text-align: left;float:left;word-wrap:break-word");
 
                                 content.setAttribute('disabled', "disabled");
                                 {#------转换执行结果格式，增加换行符<br/>#}
@@ -375,7 +380,11 @@
                                     c = str.substr(i, 1);
                                     if (c == "\n")
                                         result = result + "</br>";
-                                    else if (c != "\r")
+                                    else if (c == '\t') {
+                                        result = result + '&nbsp;' + '&nbsp;' + '&nbsp;' + '&nbsp;';
+                                    } else if (c == ' ') {
+                                        result = result + '&nbsp;';
+                                    } else if (c != "\r")
                                         result = result + c;
 
                                 }
@@ -395,7 +404,7 @@
                                 //将代码执行结果是否正确显示在课程对话框中
                                 var content = document.createElement('div');
                                 content.setAttribute('class', "alert alert-success");
-                                content.setAttribute('style', "width: 55%;text-align: left;float:left");
+                                content.setAttribute('style', "width: 55%;text-align: left;float:left;word-wrap:break-word");
                                 content.innerHTML = data.contant_info;
                                 course.appendChild(content);
                                 content.focus();
