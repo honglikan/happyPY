@@ -1,8 +1,8 @@
 # -*- coding:utf8 -*-
-from django.shortcuts import render, render_to_response
-from django.http import HttpResponseRedirect, HttpResponse, QueryDict
+from django.shortcuts import render, render_to_response,reverse
+from django.http import HttpResponseRedirect, HttpResponse, QueryDict, FileResponse,JsonResponse
 from hlPY.models import user_info, basic_learn_progress, practice_learn_progress, course_python_basic, \
-    course_python_practice
+    course_python_practice, user_tool
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
 from django.contrib import auth
@@ -13,25 +13,21 @@ import datetime
 import json
 import os, sys
 import happyPY.settings as settings
-from django.db.models import Q,Sum
-from django.db.models.aggregates import Count,Sum
-
+from django.db.models import Q, Sum
+from django.db.models.aggregates import Count, Sum
 
 File = settings.BASE_DIR
 File1 = 'hlPY'
 File2 = 'results'
 File3 = 'hints'
+File4 = 'basic'
+File5 = 'practice'
 
 '''首页'''
 
 
 def home(request):
     return render(request, 'home.html', locals())
-
-
-'''工具集页面'''
-def course(request):
-    return render(request, 'course_display.html', locals())
 
 
 '''登录函数，验证用户名和密码是否正确，如果正确，将用户保存在session中'''
@@ -81,17 +77,17 @@ def register(request):
         select_database_phone = user_info.objects.filter(phone=phone)
         select_database_email = user_info.objects.filter(email=email)
         if select_database_username:
-            #return render(request,'login/register.html',{"ERROR":"该用户名已存在"})
-            return render_to_response('login/register.html',{'error':"该用户名已存在"})
+            # return render(request,'login/register.html',{"ERROR":"该用户名已存在"})
+            return render_to_response('login/register.html', {'error': "该用户名已存在"})
         else:
             if select_database_phone:
-                #return render(request,'login/register.html',{"ERROR":"该手机号已用于注册"})
+                # return render(request,'login/register.html',{"ERROR":"该手机号已用于注册"})
                 return render_to_response('login/register.html', {'error': "该手机号已用于注册"})
 
             else:
                 if select_database_email:
-                    #return render(request,'login/register.html',{"ERROR":"该邮箱已用于注册"})
-                    return render_to_response('login/register.html',{'error':"该邮箱已用于注册"})
+                    # return render(request,'login/register.html',{"ERROR":"该邮箱已用于注册"})
+                    return render_to_response('login/register.html', {'error': "该邮箱已用于注册"})
                 else:
                     psd = make_password(password)
                     insert_database = user_info(username=username, password=psd, phone=phone, email=email, sex=sex,
@@ -99,9 +95,9 @@ def register(request):
                                                 last_login=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                                 date_joined=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                     insert_database.save()
-                    #return render(request,'login/register.html',{"SUCCESS":"注册成功"})
-                    return render_to_response('login/register.html',{'success':True})
-    return render(request,'login/register.html')
+                    # return render(request,'login/register.html',{"SUCCESS":"注册成功"})
+                    return render_to_response('login/register.html', {'success': True})
+    return render(request, 'login/register.html')
 
 
 '''进入编程环境页面，要求登录用户才能进入，否则会自动跳转到登录页面'''
@@ -114,8 +110,6 @@ def ide(request):
 
 def test(request):
     return render(request, 'test.html', locals())
-
-
 
 
 '''编程环境获取代码函数，要求必须登录的用户才能跳转'''
@@ -136,6 +130,7 @@ def testcode(request):
 
 """接收user_page2返回用户的课程信息：basic_info和practice_info。并添加至用户信息返回函数——返回当前用户名、手机号、年龄、性别、邮箱"""
 
+
 def user_page(request):
     if request.session["user"]:
         # 获取session用户名
@@ -145,34 +140,34 @@ def user_page(request):
         phone = list(select_database_username)[0]['phone']
         # 对用户手机进行脱敏处理，格式：133****3333
         replace_key = '****'
-        phone = phone[0:3]+replace_key+phone[7:11]
+        phone = phone[0:3] + replace_key + phone[7:11]
         select_database_username[0]['phone'] = phone
         select_database_username[0]['username'] = username
         # 接收user_page2返回值，添加基础课信息
         if user_page2(username):
             basic_course_info = user_page2(username)[0]
-        # 接受user_page2，添加进阶课信息
+            # 接受user_page2，添加进阶课信息
             practice_course_info = user_page2(username)[1]
             learn_time = user_page2(username)[2]
             list(select_database_username)[0]["learn_time"] = learn_time
-        # 回传信息
+            # 回传信息
             d = {'user_info': list(select_database_username)[0], 'basic_course_info': basic_course_info,
-             'practice_course_info': practice_course_info}
-            print(d)
-        #d = json.dumps(d,ensure_ascii=False)  # 回传信息转json
+                 'practice_course_info': practice_course_info}
+            # d = json.dumps(d,ensure_ascii=False)  # 回传信息转json
             return render(request, 'user_page.html', d)
         else:
-            basic_course_info={}
-            #basic_course_info["learn_time"] = 0
-            practice_course_info={}
-            #practice_course_info["learn_time"] = 0
+            basic_course_info = {}
+            # basic_course_info["learn_time"] = 0
+            practice_course_info = {}
+            # practice_course_info["learn_time"] = 0
             list(select_database_username)[0]["learn_time"] = '0'
             d = {'user_info': list(select_database_username)[0], 'basic_course_info': basic_course_info,
-             'practice_course_info': practice_course_info}
-            return render(request, 'user_page.html',d)
+                 'practice_course_info': practice_course_info}
+            return render(request, 'user_page.html', d)
 
 
 """课程信息返回函数，返回课程id、课程名、章节数、用户学习进度百分比及学习进度等详细信息至user_page"""
+
 
 def user_page2(username):
     username = username
@@ -182,59 +177,69 @@ def user_page2(username):
     # 获取用户已学习的基础课程
     select_database_basic_progress1 = basic_learn_progress.objects.values('basic_id').distinct().filter(user_id=user_id)
     # 获取用户已学习的实战课程
-    select_database_practice_progress1 = practice_learn_progress.objects.values('practice_id').distinct().filter(user_id=user_id)
+    select_database_practice_progress1 = practice_learn_progress.objects.values('practice_id').distinct().filter(
+        user_id=user_id)
     basic_info = []
     practice_info = []
-    #对获取的已学习基础、实战课程进行判断，若有基础课程学习进度、无实战课程学习进度
+    # 对获取的已学习基础、实战课程进行判断，若有基础课程学习进度、无实战课程学习进度
     if select_database_basic_progress1 and not select_database_practice_progress1:
-        #对用户已学习的基础课程进度进行循环
+        # 对用户已学习的基础课程进度进行循环
         for i in range(len(list(select_database_basic_progress1))):
             basic_course_info = {}
             # 获取基础课程id
             basic_id = list(select_database_basic_progress1)[i]["basic_id"]
             # 获取用户已学完的基础课程章节id、用户学习时长及学习状态, 1为已完成，2为进行中
-            select_database_basic_progress2 = basic_learn_progress.objects.values('basic_chapter_id', 'learn_status').filter(user_id=user_id, learn_status=1,basic_id=basic_id)
+            select_database_basic_progress2 = basic_learn_progress.objects.values('basic_chapter_id',
+                                                                                  'learn_status').filter(
+                user_id=user_id, learn_status=1, basic_id=basic_id)
             # 获取全部基础课程名称和章节id
-            select_database_count_basic_course1 = course_python_basic.objects.values("basic_name").filter(basic_id=basic_id)
-            select_database_count_basic_course = course_python_basic.objects.values("basic_chapter_id").distinct().filter(basic_id=basic_id)
-            #用户分课时长统计
-            select_database_basic_course_time = basic_learn_progress.objects.filter(user_id=user_id).values("basic_id").annotate(sum_time=Sum("learn_time"))
-            #用户总时长统计
-            select_database_learn_time = basic_learn_progress.objects.filter(user_id=user_id).aggregate(sum_time2=Sum("learn_time"))
+            select_database_count_basic_course1 = course_python_basic.objects.values("basic_name").filter(
+                basic_id=basic_id)
+            select_database_count_basic_course = course_python_basic.objects.values(
+                "basic_chapter_id").distinct().filter(basic_id=basic_id)
+            # 用户分课时长统计
+            select_database_basic_course_time = basic_learn_progress.objects.filter(user_id=user_id).values(
+                "basic_id").annotate(sum_time=Sum("learn_time"))
+            # 用户总时长统计
+            select_database_learn_time = basic_learn_progress.objects.filter(user_id=user_id).aggregate(
+                sum_time2=Sum("learn_time"))
             # 对返回值basic_course_info进行拼接，包括basic_course_id：基础课程id、basic_course_num：每个基础课程章节数、
             # rate：用户已完成的课程占比、basic_course_name：基础课程名、user_progress：已完成的章节数和学习状态
             basic_id = list(select_database_basic_progress1)[i]["basic_id"]
             basic_course_info["basic_course_id"] = basic_id
             basic_course_info["type"] = "basic"
             basic_course_info["basic_course_num"] = len(list(select_database_count_basic_course))
-            basic_course_info["rate"] = str(round(len(list(select_database_basic_progress2))/basic_course_info["basic_course_num"]*100,0))[:-2]+'%'
+            basic_course_info["rate"] = str(
+                round(len(list(select_database_basic_progress2)) / basic_course_info["basic_course_num"] * 100, 0))[
+                                        :-2] + '%'
             basic_course_info["basic_course_name"] = list(select_database_count_basic_course1)[0]['basic_name']
             basic_course_time = list(select_database_basic_course_time)[i]["sum_time"]
-            basic_course_time_minute ,basic_course_time_second = divmod(basic_course_time,60)
-            basic_course_time_hour,basic_course_time_minute = divmod(basic_course_time_minute,60)
+            basic_course_time_minute, basic_course_time_second = divmod(basic_course_time, 60)
+            basic_course_time_hour, basic_course_time_minute = divmod(basic_course_time_minute, 60)
             if basic_course_time_hour == 0:
                 if basic_course_time_minute == 0:
-                    basic_course_time = str(basic_course_time_second)+"秒"
+                    basic_course_time = str(basic_course_time_second) + "秒"
                 else:
-                    basic_course_time = str(basic_course_time_minute)+"分钟"+str(basic_course_time_second)+"秒"
+                    basic_course_time = str(basic_course_time_minute) + "分钟" + str(basic_course_time_second) + "秒"
             else:
-                basic_course_time = str(basic_course_time_hour)+"小时"+str(basic_course_time_minute)+"分钟"+str(basic_course_time_second)+"秒"
+                basic_course_time = str(basic_course_time_hour) + "小时" + str(basic_course_time_minute) + "分钟" + str(
+                    basic_course_time_second) + "秒"
             learn_time = select_database_learn_time["sum_time2"]
-            learn_time_minute, learn_time_second = divmod(learn_time,60)
-            learn_time_hour,learn_time_minute = divmod(learn_time_minute,60)
+            learn_time_minute, learn_time_second = divmod(learn_time, 60)
+            learn_time_hour, learn_time_minute = divmod(learn_time_minute, 60)
             if learn_time_hour == 0:
                 if learn_time_minute == 0:
-                    learn_time = str(learn_time_second)+"秒"
+                    learn_time = str(learn_time_second) + "秒"
                 else:
-                    learn_time = str(learn_time_minute)+"分钟" +  str(learn_time_second)+"秒"
+                    learn_time = str(learn_time_minute) + "分钟" + str(learn_time_second) + "秒"
             else:
-                learn_time = str(learn_time_hour)+"小时"+ str(learn_time_minute)+"分钟" +  str(learn_time_second)+"秒"
+                learn_time = str(learn_time_hour) + "小时" + str(learn_time_minute) + "分钟" + str(learn_time_second) + "秒"
             basic_course_info["basic_course_time"] = basic_course_time
-            #basic_course_info["learn_time"] = learn_time
+            # basic_course_info["learn_time"] = learn_time
             basic_course_info["user_progress"] = list(select_database_basic_progress2)  # 已完成的章节数和学习状态
             basic_info.append(basic_course_info)
-        return basic_info, practice_info,learn_time
-    #对获取的已学习基础、实战课程进行判断，若有实战课程学习进度、无基础课程学习进度
+        return basic_info, practice_info, learn_time
+    # 对获取的已学习基础、实战课程进行判断，若有实战课程学习进度、无基础课程学习进度
     if select_database_practice_progress1 and not select_database_basic_progress1:
         # 对用户已学习的实战课程进度进行循环
         for i in range(len(list(select_database_practice_progress1))):
@@ -243,13 +248,14 @@ def user_page2(username):
             practice_id = list(select_database_practice_progress1)[i]["practice_id"]
             # 获取用户已学完的实战课程章节id及学习状态, 1为已完成，2为进行中
             select_database_practice_progress2 = practice_learn_progress.objects.values('practice_chapter_id',
-                                                                                  'learn_status').filter(
+                                                                                        'learn_status').filter(
                 user_id=user_id, learn_status=1, practice_id=practice_id)
             # 获取全部实战课程名称和章节id
             select_database_count_practice_course1 = course_python_practice.objects.values("practice_name",
-                                                                                   ).filter(
+                                                                                           ).filter(
                 practice_id=practice_id)
-            select_database_count_practice_course = course_python_practice.objects.values("practice_chapter_id").distinct().filter(practice_id=practice_id)
+            select_database_count_practice_course = course_python_practice.objects.values(
+                "practice_chapter_id").distinct().filter(practice_id=practice_id)
             # 用户分课时长统计
             select_database_practice_course_time = practice_learn_progress.objects.filter(user_id=user_id).values(
                 "practice_id").annotate(sum_time=Sum("learn_time"))
@@ -266,11 +272,13 @@ def user_page2(username):
             practice_course_time_hour, practice_course_time_minute = divmod(practice_course_time_minute, 60)
             if practice_course_time_hour == 0:
                 if practice_course_time_minute == 0:
-                    practice_course_time = str(practice_course_time_second)+"秒"
+                    practice_course_time = str(practice_course_time_second) + "秒"
                 else:
-                    practice_course_time = str(practice_course_time_minute)+"分钟"+str(practice_course_time_second)+"秒"
+                    practice_course_time = str(practice_course_time_minute) + "分钟" + str(
+                        practice_course_time_second) + "秒"
             else:
-                practice_course_time = str(practice_course_time_hour)+"小时"+str(practice_course_time_minute)+"分钟"+str(practice_course_time_second)+"秒"
+                practice_course_time = str(practice_course_time_hour) + "小时" + str(
+                    practice_course_time_minute) + "分钟" + str(practice_course_time_second) + "秒"
             learn_time = select_database_learn_time["sum_time2"]
             learn_time_minute, learn_time_second = divmod(learn_time, 60)
             learn_time_hour, learn_time_minute = divmod(learn_time_minute, 60)
@@ -282,15 +290,16 @@ def user_page2(username):
             else:
                 learn_time = str(learn_time_hour) + "小时" + str(learn_time_minute) + "分钟" + str(learn_time_second) + "秒"
             practice_course_info["practice_course_time"] = practice_course_time
-            #practice_course_info["learn_time"] = learn_time
+            # practice_course_info["learn_time"] = learn_time
             practice_course_info["rate"] = str(
                 round(len(list(select_database_practice_progress2)) / practice_course_info["practice_course_num"] * 100,
                       0)) + '%'
-            practice_course_info["practice_course_name"] = list(select_database_count_practice_course1)[0]['practice_name']
+            practice_course_info["practice_course_name"] = list(select_database_count_practice_course1)[0][
+                'practice_name']
             practice_course_info["user_progress"] = list(select_database_practice_progress2)  # 已完成的章节数和学习状态
             practice_info.append(practice_course_info)
-        return basic_info, practice_info,learn_time
-    #对获取的已学习基础、实战课程进行判断，若有实战课程学习进度、基础课程学习进度，具体注释参见上文
+        return basic_info, practice_info, learn_time
+    # 对获取的已学习基础、实战课程进行判断，若有实战课程学习进度、基础课程学习进度，具体注释参见上文
     if select_database_basic_progress1 and select_database_practice_progress1:
         for i in range(len(list(select_database_basic_progress1))):
             basic_course_info = {}
@@ -322,18 +331,19 @@ def user_page2(username):
                                         :-2] + '%'
             basic_course_info["basic_course_name"] = list(select_database_count_basic_course1)[0]['basic_name']
             basic_course_time = list(select_database_basic_course_time)[i]["sum_time"]
-            basic_course_time_minute ,basic_course_time_second = divmod(basic_course_time,60)
-            basic_course_time_hour,basic_course_time_minute = divmod(basic_course_time_minute,60)
+            basic_course_time_minute, basic_course_time_second = divmod(basic_course_time, 60)
+            basic_course_time_hour, basic_course_time_minute = divmod(basic_course_time_minute, 60)
             if basic_course_time_hour == 0:
                 if basic_course_time_minute == 0:
-                    basic_course_time = str(basic_course_time_second)+"秒"
+                    basic_course_time = str(basic_course_time_second) + "秒"
                 else:
-                    basic_course_time = str(basic_course_time_minute)+"分钟"+str(basic_course_time_second)+"秒"
+                    basic_course_time = str(basic_course_time_minute) + "分钟" + str(basic_course_time_second) + "秒"
             else:
-                basic_course_time = str(basic_course_time_hour)+"小时"+str(basic_course_time_minute)+"分钟"+str(basic_course_time_second)+"秒"
+                basic_course_time = str(basic_course_time_hour) + "小时" + str(basic_course_time_minute) + "分钟" + str(
+                    basic_course_time_second) + "秒"
             learn_time = select_database_learn_time["sum_time2"]
             basic_course_info["basic_course_time"] = basic_course_time
-            #basic_course_info["learn_time"] = learn_time
+            # basic_course_info["learn_time"] = learn_time
             basic_course_info["user_progress"] = list(select_database_basic_progress2)  # 已完成的章节数和学习状态
             basic_info.append(basic_course_info)
         for i in range(len(list(select_database_practice_progress1))):
@@ -395,12 +405,13 @@ def user_page2(username):
                 learn_time = str(learn_time_minute) + "分钟" + str(learn_time_second) + "秒"
         else:
             learn_time = str(learn_time_hour) + "小时" + str(learn_time_minute) + "分钟" + str(learn_time_second) + "秒"
-        return basic_info, practice_info,learn_time
+        return basic_info, practice_info, learn_time
 
 
 """用户页用户信息变更，可更改用户密码、手机号、邮箱
 读取用户输入，输出更改后的用户信息
 """
+
 
 @csrf_exempt
 def user_info_modify(request):
@@ -410,38 +421,47 @@ def user_info_modify(request):
             password = request.POST.get('password')
             phone = request.POST.get('phone')
             email = request.POST.get('email')
-
-            select_database_phone1 = user_info.objects.values("phone").filter(username=username)
             #前台返回当前用户信息至表单，如用户修改的手机号和邮箱，在数据库中进行查重，若重复返回错误信息；若不重
             select_database_email = user_info.objects.filter(~Q(username=username),email=email)
             if select_database_email:
-                return render(request, 'user_page.html', {'error': "该邮箱已用于注册"})
+                return JsonResponse({'error': "该邮箱已用于注册"})
             else:
-                if not password:
-                    select_database_password = user_info.objects.values("password").filter(username=username)
-                    psd = select_database_password[0]['password']
-                else:
-                    psd = make_password(password)
                 if '*' in phone:
-                    user_info.objects.filter(username=username).update(password=psd, email=email)
-                    return render_to_response('user_page.html', {"success": True})
+                    if not password :
+                        select_database_password = user_info.objects.values("password").filter(username=username)
+                        psd = select_database_password[0]['password']
+                        user_info.objects.filter(username=username).update(password=psd, email=email)
+                        return JsonResponse({"success":True})
+                    if password:
+                        psd = make_password(password)
+                        user_info.objects.filter(username=username).update(password=psd, email=email)
+                        return JsonResponse( {"success": True,"status":"密码修改成功"})
                 else:
                     select_database_phone = user_info.objects.filter(~Q(username=username), phone=phone)
                     if select_database_phone:
-                        return render(request,'user_page.html',{'error': "该手机号已用于注册"})
-                    user_info.objects.filter(username=username).update(password=psd, phone=phone, email=email)
-                    return render_to_response('user_page.html',{"success":True})
+                        return JsonResponse({'error': "该手机号已用于注册"})
+                    else:
+                        if not password:
+                            select_database_password = user_info.objects.values("password").filter(username=username)
+                            psd = select_database_password[0]['password']
+                            user_info.objects.filter(username=username).update(password=psd, email=email, phone=phone)
+                            return JsonResponse({"success": True})
+                        if password:
+                            psd = make_password(password)
+                            user_info.objects.filter(username=username).update(password=psd, email=email, phone=phone)
+                            return JsonResponse({"success": True, "status": "密码修改成功"})
 
 
 """用户页面跳转学习界面函数，点击相应“继续学习”按钮，将用户页面返回的课程类型、课程id、课程名，传至学习界面，匹配相应导航栏"""
+
+
 @csrf_exempt
 def user_course_locate(request):
-    if request.method=='POST':
+    if request.method == 'POST':
         continue_course_type = request.POST.get('type', '')
         continue_course_id = request.POST.get('course_id', '')
         continue_course_name = request.POST.get('course_name', '')
-        print(continue_course_type, continue_course_id, continue_course_name)
-        if continue_course_type=='basic':
+        if continue_course_type == 'basic':
             if request.session["user"]:
                 username = request.session["user"]
                 # 根据session中用户名获取用户id
@@ -468,7 +488,7 @@ def user_course_locate(request):
                             "basic_id"] and list(select_database_learn_progress)[j]["basic_chapter_id"] == \
                                 list(select_database_course_name)[i]["basic_chapter_id"]:
                             list(select_database_course_name)[i]["learn_status"] = \
-                            list(select_database_learn_progress)[j]["learn_status"]
+                                list(select_database_learn_progress)[j]["learn_status"]
                 # 将拼接后的全量课程表的第一行中basic_chapter_id、basic_chapter_name、learn_status作为progess字典的key-value，
                 # 与basic_id、basic_name一起作为初始值加到页面返回值中
                 progress1["basic_chapter_name"] = list(select_database_course_name)[0]["basic_chapter_name"]
@@ -503,8 +523,8 @@ def user_course_locate(request):
                 d["continue_course_id"] = int(continue_course_id)
                 d["continue_course_name"] = continue_course_name
                 # return render_to_response("test.html", d)
-                #return HttpResponseRedirect('../test')
-                return render(request,'learn.html',d)
+                # return HttpResponseRedirect('../test')
+                return render(request, 'learn.html', d)
         if continue_course_type == 'practice':
             if request.session["user"]:
                 username = request.session["user"]
@@ -533,7 +553,7 @@ def user_course_locate(request):
                                 list(select_database_learn_progress)[j]["practice_chapter_id"] == \
                                 list(select_database_course_name)[i]["practice_chapter_id"]:
                             list(select_database_course_name)[i]["learn_status"] = \
-                            list(select_database_learn_progress)[j]["learn_status"]
+                                list(select_database_learn_progress)[j]["learn_status"]
                 # 将拼接后的全量课程表的第一行中practice_chapter_id、practice_chapter_name、learn_status作为progess字典的key-value，
                 # 与practice_id、practice_name一起作为初始值加到页面返回值中
                 progress1["practice_chapter_name"] = list(select_database_course_name)[0]["practice_chapter_name"]
@@ -571,8 +591,7 @@ def user_course_locate(request):
                 d["continue_course_id"] = int(continue_course_id)
                 d["continue_course_name"] = continue_course_name
                 # return render_to_response("test.html", d)
-                return render(request,'learn.html',d)
-
+                return render(request, 'learn.html', d)
 
 
 """用于返回学习界面左侧导航栏学习状态，获取全量课程及用户学习进度，
@@ -582,6 +601,7 @@ def user_course_locate(request):
 {'basic_chapter_name': '12345', 'learn_status': 0, 'basic_chapter_id': 3}]}, 
 {'basic_name': '234', 'basic_id': 2, 'progress': [{'basic_chapter_name': '234', 'learn_status': '1', 'basic_chapter_id': 1}]}]}
 """
+
 
 @csrf_exempt
 def learn_basic(request):
@@ -768,7 +788,7 @@ def basic_course_next(request):
                                                                                          basic_chapter_id=chapter_id)
             # 计算该章节课程语句的总数，保存在contant_num中
             contant_num = len(list(contant_nums))
-            #拼接课程id
+            # 拼接课程id
             contant_id_id = basic_id_id + '_' + chapter_id_id + '_' + contantid
             # 根据课程id，章节id以及语句id，从数据库中取出语句内容，格式为Query格式
             contant = course_python_basic.objects.values('basic_contant_info').filter(basic_id=basic_id,
@@ -780,8 +800,8 @@ def basic_course_next(request):
             # 如果语句id小于语句数量，即还没有到该章节最后一句，则设置字典course_contant_info的key'last'=False
             if contant_id < contant_num:
                 course_contant_info['last'] = False
-                #判断该句是否为图片
-                #如果语句以'Img@'开头，认为其为图片，course_contant_info的key'isImg'=True
+                # 判断该句是否为图片
+                # 如果语句以'Img@'开头，认为其为图片，course_contant_info的key'isImg'=True
                 if str(contant_info).startswith('Img@'):
                     course_contant_info['isImg'] = True
                     course_contant_info['input'] = False
@@ -835,6 +855,7 @@ def basic_course_next(request):
 获取语句具体内容，并判断是否最后一句，是否为用户输入，返回是否最后一句的判断，是否为用户输入的判断，
 本句话的内容和下一句的语句id'''
 
+
 @csrf_exempt
 def practice_course_next(request):
     if request.method == 'POST':
@@ -854,9 +875,10 @@ def practice_course_next(request):
             # 拼接课程id
             contant_id_id = practice_id_id + '_' + chapter_id_id + '_1'
             # 根据课程id，章节id以及语句id，从数据库中取出课程名和章节名
-            contant = course_python_practice.objects.values('practice_name', 'practice_chapter_name').filter(practice_id=practice_id,
-                                                                                                    practice_chapter_id=chapter_id,
-                                                                                                    practice_contant_id=contant_id_id)
+            contant = course_python_practice.objects.values('practice_name', 'practice_chapter_name').filter(
+                practice_id=practice_id,
+                practice_chapter_id=chapter_id,
+                practice_info_id=contant_id_id)
             # 设置字典course_contant_info的key'practice_name'和'practice_chapter_name'
             course_contant_info['practice_name'] = contant[0]['practice_name']
             course_contant_info['practice_chapter_name'] = contant[0]['practice_chapter_name']
@@ -868,43 +890,58 @@ def practice_course_next(request):
             # 定义一个字典
             course_contant_info = {}
             # 根据课程id，章节id，从数据库中取出该章节课程所有的语句，保存在contant_nums中
-            contant_nums = course_python_practice.objects.values('practice_contant_id').filter(practice_id=practice_id,
-                                                                                         practice_chapter_id=chapter_id)
+            contant_nums = course_python_practice.objects.values('practice_info_id').filter(practice_id=practice_id,
+                                                                                            practice_chapter_id=chapter_id)
             # 计算该章节课程语句的总数，保存在contant_num中
             contant_num = len(list(contant_nums))
-            #拼接课程id
+            # 拼接课程id
             contant_id_id = practice_id_id + '_' + chapter_id_id + '_' + contantid
             # 根据课程id，章节id以及语句id，从数据库中取出语句内容，格式为Query格式
-            contant = course_python_practice.objects.values('practice_contant_info').filter(practice_id=practice_id,
-                                                                                      practice_chapter_id=chapter_id,
-                                                                                      practice_contant_id=contant_id_id)
+            contant = course_python_practice.objects.values('practice_info_contant').filter(practice_id=practice_id,
+                                                                                            practice_chapter_id=chapter_id,
+                                                                                            practice_info_id=contant_id_id)
             # contant_info为语句内容
-            contant_info = contant[0]['practice_contant_info']
+            contant_info = contant[0]['practice_info_contant']
             # 判断是否为最后一句
             # 如果语句id小于语句数量，即还没有到该章节最后一句，则设置字典course_contant_info的key'last'=False
             if contant_id < contant_num:
                 course_contant_info['last'] = False
-                # 判断是否需要用户输入
-                # 如果语句以'#'开头，认为其为需要用户输入的地方，设置字典course_contant_info的key'input'=True
-                if str(contant_info).startswith('#'):
-                    course_contant_info['input'] = True
-                    # 设置字典course_contant_info的key'contant_id'=contant_id + 1，即返回下一句的id
+                # 判断该句是否为图片
+                # 如果语句以'Img@'开头，认为其为图片，course_contant_info的key'isImg'=True
+                if str(contant_info).startswith('Img@'):
+                    course_contant_info['isImg'] = True
+                    course_contant_info['input'] = False
                     course_contant_info['contant_id'] = contant_id + 1
-                    # 取出该语句的内容,str(contant_info)[1:]表示取出该句除开头'#'之外的语句，存入设置字典course_contant_info的key'contant_info'中
-                    course_contant_info['contant_info'] = str(contant_info)[1:]
+                    course_contant_info['contant_info'] = str(contant_info)[4:]
                     '''将字典转化成json格式并返回给前端，返回结果样例为
-                {"last": false, "input": true, "content_id": 9, "content_info": "来和小派一起写一个   “轻松快乐学Python,化繁为简so fashion!”"}'''
+                {"last": false, "input": true, "content_id": 9, 'isImg':true
+                "content_info": ""}'''
                     return HttpResponse(json.dumps(course_contant_info, ensure_ascii=False),
                                         content_type="application/json")
                 else:
-                    # 如果语句不以'#'开头，设置字典course_contant_info的key'input'=False
-                    course_contant_info['input'] = False
-                    course_contant_info['contant_id'] = contant_id + 1
-                    course_contant_info['contant_info'] = contant_info
-                    '''将字典转化成json格式并返回给前端，返回结果样例为
-                {"last": false, "input": false, "content_id": 2, "content_info": "大家好，我是小派！感谢大家选择快乐学Python产品，接下来的课程将由我为大家一一介绍，满满的都是知识点呦~"}'''
-                    return HttpResponse(json.dumps(course_contant_info, ensure_ascii=False),
-                                        content_type="application/json")
+                    course_contant_info['isImg'] = False
+                    # 判断是否需要用户输入
+                    # 如果语句以'#'开头，认为其为需要用户输入的地方，设置字典course_contant_info的key'input'=True
+                    if str(contant_info).startswith('#'):
+                        course_contant_info['input'] = True
+                        # 设置字典course_contant_info的key'contant_id'=contant_id + 1，即返回下一句的id
+                        course_contant_info['contant_id'] = contant_id + 1
+                        # 取出该语句的内容,str(contant_info)[1:]表示取出该句除开头'#'之外的语句，存入设置字典course_contant_info的key'contant_info'中
+                        course_contant_info['contant_info'] = str(contant_info)[1:]
+                        '''将字典转化成json格式并返回给前端，返回结果样例为
+                    {"last": false, "input": true, "content_id": 9, 'isImg':false
+                    "content_info": "来和小派一起写一个   “轻松快乐学Python,化繁为简so fashion!”"}'''
+                        return HttpResponse(json.dumps(course_contant_info, ensure_ascii=False),
+                                            content_type="application/json")
+                    else:
+                        # 如果语句不以'#'开头，设置字典course_contant_info的key'input'=False
+                        course_contant_info['input'] = False
+                        course_contant_info['contant_id'] = contant_id + 1
+                        course_contant_info['contant_info'] = contant_info
+                        '''将字典转化成json格式并返回给前端，返回结果样例为
+                    {"last": false, "input": false, "content_id": 2, "content_info": "大家好，我是小派！感谢大家选择快乐学Python产品，接下来的课程将由我为大家一一介绍，满满的都是知识点呦~"}'''
+                        return HttpResponse(json.dumps(course_contant_info, ensure_ascii=False),
+                                            content_type="application/json")
             else:
                 # 如果语句id大于等于语句数量，则设置字典course_contant_info的key'last'=True
                 course_contant_info['last'] = True
@@ -917,7 +954,6 @@ def practice_course_next(request):
                 return HttpResponse(json.dumps(course_contant_info, ensure_ascii=False),
                                     content_type="application/json")
     return render(request, 'learn.html', locals())
-
 
 
 '''
@@ -976,12 +1012,13 @@ def basic_course_post(request):
         contant_id = int(contantid)
         # code用户输入的代码
         code = request.POST.get("code")
+        print(code)
         # 调用codecompilation.py中的main函数，执行用户输入，并返回结果保存到user_result
         user_result = codecompilation.main(code)
         # filename为课程id_章节id_语句id.txt
         filename = basic_id_id + '_' + chapter_id_id + '_' + contantid + '.txt'
         # 拼接课程答案保存路径
-        fpath = os.path.join(File, File1, File2, filename)
+        fpath = os.path.join(File, File1, File2, File4, filename)
         # 调用codecompilation.py中的correct函数，执行答案，并返回结果保存到result
         result = codecompilation.correct(fpath)
         # 判断用户输入的答案和正确答案是否一样
@@ -1002,7 +1039,7 @@ def basic_course_post(request):
           {"content_id": 9, "content_info": "有点问题哦，再试一试吧！", "success": false, "result": {"version": "python 3.6", "output": "0\r\n", "code": "Success"}}'''
             return HttpResponse(json.dumps(course_contant_info, ensure_ascii=False), content_type="application/json")
         else:
-            contant_id_id = basic_id_id + '_' + chapter_id_id + '_' + str(contant_id+1)
+            contant_id_id = basic_id_id + '_' + chapter_id_id + '_' + str(contant_id + 1)
             # 提取用户输入正确时返回的语句信息，此时语句id加1
             contant = course_python_basic.objects.values('basic_contant_info').filter(basic_id=basic_id,
                                                                                       basic_chapter_id=chapter_id,
@@ -1023,6 +1060,7 @@ def basic_course_post(request):
 验证用户输入是否正确，并返回对应的语句id，语句信息和用户输入的结果
 '''
 
+
 @csrf_exempt
 def practice_course_post(request):
     if request.method == 'POST':
@@ -1040,7 +1078,7 @@ def practice_course_post(request):
         # filename为课程id_章节id_语句id.txt
         filename = practice_id_id + '_' + chapter_id_id + '_' + contantid + '.txt'
         # 拼接课程答案保存路径
-        fpath = os.path.join(File, File1, File2, filename)
+        fpath = os.path.join(File, File1, File2, File5, filename)
         # 调用codecompilation.py中的correct函数，执行答案，并返回结果保存到result
         result = codecompilation.correct(fpath)
         # 判断用户输入的答案和正确答案是否一样
@@ -1048,10 +1086,10 @@ def practice_course_post(request):
         if result != user_result:
             contant_id_id = practice_id_id + '_' + chapter_id_id + '_' + contantid
             # 提取用户输入错误时返回的语句信息
-            contant = course_python_practice.objects.values('practice_contant_info').filter(practice_id=practice_id,
-                                                                                      practice_chapter_id=chapter_id,
-                                                                                      practice_contant_id=contant_id_id)
-            contant_info = contant[0]['practice_contant_info']
+            contant = course_python_practice.objects.values('practice_info_contant').filter(practice_id=practice_id,
+                                                                                            practice_chapter_id=chapter_id,
+                                                                                            practice_info_id=contant_id_id)
+            contant_info = contant[0]['practice_info_contant']
             # 因为输入错误，所以语句id不加1，直接返回
             course_contant_info['contant_id'] = contant_id
             course_contant_info['contant_info'] = contant_info
@@ -1061,12 +1099,12 @@ def practice_course_post(request):
           {"content_id": 9, "content_info": "有点问题哦，再试一试吧！", "success": false, "result": {"version": "python 3.6", "output": "0\r\n", "code": "Success"}}'''
             return HttpResponse(json.dumps(course_contant_info, ensure_ascii=False), content_type="application/json")
         else:
-            contant_id_id = practice_id_id + '_' + chapter_id_id + '_' + str(contant_id+1)
+            contant_id_id = practice_id_id + '_' + chapter_id_id + '_' + str(contant_id + 1)
             # 提取用户输入正确时返回的语句信息，此时语句id加1
-            contant = course_python_practice.objects.values('practice_contant_info').filter(practice_id=practice_id,
-                                                                                      practice_chapter_id=chapter_id,
-                                                                                      practice_contant_id=contant_id_id)
-            contant_info = contant[0]['practice_contant_info']
+            contant = course_python_practice.objects.values('practice_info_contant').filter(practice_id=practice_id,
+                                                                                            practice_chapter_id=chapter_id,
+                                                                                            practice_info_id=contant_id_id)
+            contant_info = contant[0]['practice_info_contant']
             # 因为输入正确，所以语句id加1，然后返回
             course_contant_info['contant_id'] = contant_id + 1
             course_contant_info['contant_info'] = contant_info
@@ -1096,7 +1134,7 @@ def basic_course_hint(request):
         # filename为课程id_章节id_语句id.txt
         filename = basic_id_id + '_' + chapter_id_id + '_' + contantid + '.txt'
         # 拼接课程答案保存路径
-        fpath = os.path.join(File, File1, File3, filename)
+        fpath = os.path.join(File, File1, File3, File4, filename)
         # 读取答案，保存在hint中
         with open(fpath, 'r', encoding='gbk') as f:
             hint = f.read()
@@ -1126,9 +1164,9 @@ def practice_course_hint(request):
         # filename为课程id_章节id_语句id.txt
         filename = practice_id_id + '_' + chapter_id_id + '_' + contantid + '.txt'
         # 拼接课程答案保存路径
-        fpath = os.path.join(File, File1, File2, filename)
+        fpath = os.path.join(File, File1, File2, File5, filename)
         # 读取答案，保存在hint中
-        with open(fpath, 'r', encoding='utf-8') as f:
+        with open(fpath, 'r', encoding='gbk') as f:
             hint = f.read()
         course_contant_info['codehint'] = hint
         course_contant_info['contant_id'] = contant_id
@@ -1141,16 +1179,17 @@ def practice_course_hint(request):
 '''统计用户学习时长函数，根据获取到的课程id，章节id，语句id和学习时长以及session中的用户名，
 在数据库表basic_learn_progress中更新该章节，该用户的学习时长'''
 
+
 @csrf_exempt
 def basic_learned_time(request):
     if request.method == 'POST':
         if request.session["user"]:
-            #从session中获取用户名
+            # 从session中获取用户名
             username = request.session["user"]
             # 通过用户名从user_info获取id
             select_id = user_info.objects.values('user_id').filter(username=username)
             user_id = select_id[0]['user_id']
-            #获取课程id，章节id，语句id和学习时长
+            # 获取课程id，章节id，语句id和学习时长
             basic_id_id = request.POST.get('course_id')
             basic_id = int(basic_id_id)
             chapter_id_id = request.POST.get('chapter_id')
@@ -1163,14 +1202,16 @@ def basic_learned_time(request):
                                                                                          basic_chapter_id=chapter_id)
             # 计算该章节课程语句的总数，保存在contant_num中
             contant_num = len(list(contant_nums))
-            #如果在进度表中没有该用户针对课程该章节的学习记录，则插入一条
-            if not basic_learn_progress.objects.filter(basic_id=basic_id, basic_chapter_id=chapter_id, user_id_id=user_id):
-                #如果没有学完该章节所有语句，则学习状态记为2，语句插入学完的语句号
+            # 如果在进度表中没有该用户针对课程该章节的学习记录，则插入一条
+            if not basic_learn_progress.objects.filter(basic_id=basic_id, basic_chapter_id=chapter_id,
+                                                       user_id_id=user_id):
+                # 如果没有学完该章节所有语句，则学习状态记为2，语句插入学完的语句号
                 if contant_id < contant_num:
-                    #拼接语句id
+                    # 拼接语句id
                     contant_id_id = basic_id_id + '_' + chapter_id_id + '_' + contantid
                     # 学习状态，1：已完成，2：进行中，插入数据库
-                    insert_progress = basic_learn_progress(basic_id=basic_id, basic_chapter_id=chapter_id, learn_status='2',
+                    insert_progress = basic_learn_progress(basic_id=basic_id, basic_chapter_id=chapter_id,
+                                                           learn_status='2',
                                                            learn_time=last_time, basic_contant_id_id=contant_id_id,
                                                            user_id_id=user_id)
                     insert_progress.save()
@@ -1178,9 +1219,10 @@ def basic_learned_time(request):
                     return HttpResponse(json.dumps(result), content_type="application/json")
                 # 如果学完该章节所有语句，则学习状态记为1，语句插入最后一句的id
                 else:
-                    #拼接最后一句的id
+                    # 拼接最后一句的id
                     contant_id_id = basic_id_id + '_' + chapter_id_id + '_' + str(contant_num)
-                    insert_progress = basic_learn_progress(basic_id=basic_id, basic_chapter_id=chapter_id, learn_status='1',
+                    insert_progress = basic_learn_progress(basic_id=basic_id, basic_chapter_id=chapter_id,
+                                                           learn_status='1',
                                                            learn_time=last_time, basic_contant_id_id=contant_id_id,
                                                            user_id_id=user_id)
                     insert_progress.save()
@@ -1188,36 +1230,36 @@ def basic_learned_time(request):
                     return HttpResponse(json.dumps(result), content_type="application/json")
             # 如果在进度表中有该用户针对课程该章节的学习记录，则更新该条记录
             else:
-                #根据用户id，课程和章节提取学习状态、是从和语句id
+                # 根据用户id，课程和章节提取学习状态、是从和语句id
                 select_info = basic_learn_progress.objects.values('learn_status', 'learn_time',
                                                                   'basic_contant_id_id').filter(
                     basic_id=basic_id,
                     basic_chapter_id=chapter_id, user_id_id=user_id)
                 learn_status = select_info[0]['learn_status']
                 learn_time = select_info[0]['learn_time']
-                #由于id是1_1_1格式，需要拆分，并且转换成int格式
+                # 由于id是1_1_1格式，需要拆分，并且转换成int格式
                 basic_contant_id = int((select_info[0]['basic_contant_id_id']).split('_')[2])
                 time = learn_time + last_time
-                #如果已完成，则只更新学习时长
+                # 如果已完成，则只更新学习时长
                 if learn_status == '1':
                     basic_learn_progress.objects.filter(basic_id=basic_id, basic_chapter_id=chapter_id,
                                                         user_id_id=user_id).update(
                         learn_time=time)
                     result = {'success': True}
                     return HttpResponse(json.dumps(result), content_type="application/json")
-                #如果未完成，则判断当前语句id和数据库语句id
-                #如果当前语句id小于数据库语句id
+                # 如果未完成，则判断当前语句id和数据库语句id
+                # 如果当前语句id小于数据库语句id
                 elif contant_id <= basic_contant_id:
-                    #更新学习时长
+                    # 更新学习时长
                     basic_learn_progress.objects.filter(basic_id=basic_id, basic_chapter_id=chapter_id,
                                                         user_id_id=user_id).update(
                         learn_time=time, learn_status='2')
                     result = {'success': True}
                     return HttpResponse(json.dumps(result), content_type="application/json")
-                #否则，如果当前语句id小于总语句数
+                # 否则，如果当前语句id小于总语句数
                 elif contant_id < contant_num:
                     contant_id_id = basic_id_id + '_' + chapter_id_id + '_' + contantid
-                    #更新学习时长和学完的语句id
+                    # 更新学习时长和学完的语句id
                     basic_learn_progress.objects.filter(basic_id=basic_id, basic_chapter_id=chapter_id,
                                                         user_id_id=user_id).update(
                         learn_time=time, learn_status='2', basic_contant_id_id=contant_id_id)
@@ -1235,20 +1277,20 @@ def basic_learned_time(request):
     return render(request, 'learn.html', locals())
 
 
-
 '''统计用户学习时长函数，根据获取到的课程id，章节id，语句id和学习时长以及session中的用户名，
 在数据库表practice_learn_progress中更新该章节，该用户的学习时长'''
+
 
 @csrf_exempt
 def practice_learned_time(request):
     if request.method == 'POST':
         if request.session["user"]:
-            #从session中获取用户名
+            # 从session中获取用户名
             username = request.session["user"]
             # 通过用户名从user_info获取id
             select_id = user_info.objects.values('user_id').filter(username=username)
             user_id = select_id[0]['user_id']
-            #获取课程id，章节id，语句id和学习时长
+            # 获取课程id，章节id，语句id和学习时长
             practice_id_id = request.POST.get('course_id')
             practice_id = int(practice_id_id)
             chapter_id_id = request.POST.get('chapter_id')
@@ -1257,79 +1299,85 @@ def practice_learned_time(request):
             contant_id = int(contantid)
             last_time = int(request.POST.get('last_time'))
             # 根据课程id，章节id，从数据库中取出该章节课程所有的语句，保存在contant_nums中
-            contant_nums = course_python_practice.objects.values('practice_contant_id').filter(practice_id=practice_id,
-                                                                                         practice_chapter_id=chapter_id)
+            contant_nums = course_python_practice.objects.values('practice_info_id').filter(practice_id=practice_id,
+                                                                                            practice_chapter_id=chapter_id)
             # 计算该章节课程语句的总数，保存在contant_num中
             contant_num = len(list(contant_nums))
-            #如果在进度表中没有该用户针对课程该章节的学习记录，则插入一条
-            if not practice_learn_progress.objects.filter(practice_id=practice_id, practice_chapter_id=chapter_id, user_id_id=user_id):
-                #如果没有学完该章节所有语句，则学习状态记为2，语句插入学完的语句号
+            # 如果在进度表中没有该用户针对课程该章节的学习记录，则插入一条
+            if not practice_learn_progress.objects.filter(practice_id=practice_id, practice_chapter_id=chapter_id,
+                                                          user_id_id=user_id):
+                # 如果没有学完该章节所有语句，则学习状态记为2，语句插入学完的语句号
                 if contant_id < contant_num:
-                    #拼接语句id
+                    # 拼接语句id
                     contant_id_id = practice_id_id + '_' + chapter_id_id + '_' + contantid
                     # 学习状态，1：已完成，2：进行中，插入数据库
-                    insert_progress = practice_learn_progress(practice_id=practice_id, practice_chapter_id=chapter_id, learn_status='2',
-                                                           learn_time=last_time, practice_contant_id_id=contant_id_id,
-                                                           user_id_id=user_id)
+                    insert_progress = practice_learn_progress(practice_id=practice_id, practice_chapter_id=chapter_id,
+                                                              learn_status='2',
+                                                              learn_time=last_time, practice_info_id_id=contant_id_id,
+                                                              user_id_id=user_id)
                     insert_progress.save()
                     result = {'success': True}
                     return HttpResponse(json.dumps(result), content_type="application/json")
                 # 如果学完该章节所有语句，则学习状态记为1，语句插入最后一句的id
                 else:
-                    #拼接最后一句的id
+                    # 拼接最后一句的id
                     contant_id_id = practice_id_id + '_' + chapter_id_id + '_' + str(contant_num)
-                    insert_progress = practice_learn_progress(practice_id=practice_id, practice_chapter_id=chapter_id, learn_status='1',
-                                                           learn_time=last_time, practice_contant_id_id=contant_id_id,
-                                                           user_id_id=user_id)
+                    insert_progress = practice_learn_progress(practice_id=practice_id, practice_chapter_id=chapter_id,
+                                                              learn_status='1',
+                                                              learn_time=last_time, practice_info_id_id=contant_id_id,
+                                                              user_id_id=user_id)
                     insert_progress.save()
                     result = {'success': True}
                     return HttpResponse(json.dumps(result), content_type="application/json")
             # 如果在进度表中有该用户针对课程该章节的学习记录，则更新该条记录
             else:
-                #根据用户id，课程和章节提取学习状态、是从和语句id
+                # 根据用户id，课程和章节提取学习状态、是从和语句id
                 select_info = practice_learn_progress.objects.values('learn_status', 'learn_time',
-                                                                  'practice_contant_id_id').filter(
+                                                                     'practice_info_id_id').filter(
                     practice_id=practice_id,
                     practice_chapter_id=chapter_id, user_id_id=user_id)
                 learn_status = select_info[0]['learn_status']
                 learn_time = select_info[0]['learn_time']
-                #由于id是1_1_1格式，需要拆分，并且转换成int格式
-                practice_contant_id = int((select_info[0]['practice_contant_id_id']).split('_')[2])
+                # 由于id是1_1_1格式，需要拆分，并且转换成int格式
+                practice_contant_id = int((select_info[0]['practice_info_id_id']).split('_')[2])
                 time = learn_time + last_time
-                #如果已完成，则只更新学习时长
+                # 如果已完成，则只更新学习时长
                 if learn_status == '1':
                     practice_learn_progress.objects.filter(practice_id=practice_id, practice_chapter_id=chapter_id,
-                                                        user_id_id=user_id).update(
+                                                           user_id_id=user_id).update(
                         learn_time=time)
                     result = {'success': True}
                     return HttpResponse(json.dumps(result), content_type="application/json")
-                #如果未完成，则判断当前语句id和数据库语句id
-                #如果当前语句id小于数据库语句id
+                # 如果未完成，则判断当前语句id和数据库语句id
+                # 如果当前语句id小于数据库语句id
                 elif contant_id <= practice_contant_id:
-                    #更新学习时长
+                    # 更新学习时长
                     practice_learn_progress.objects.filter(practice_id=practice_id, practice_chapter_id=chapter_id,
-                                                        user_id_id=user_id).update(
+                                                           user_id_id=user_id).update(
                         learn_time=time, learn_status='2')
                     result = {'success': True}
                     return HttpResponse(json.dumps(result), content_type="application/json")
-                #否则，如果当前语句id小于总语句数
+                # 否则，如果当前语句id小于总语句数
                 elif contant_id < contant_num:
                     contant_id_id = practice_id_id + '_' + chapter_id_id + '_' + contantid
-                    #更新学习时长和学完的语句id
+                    # 更新学习时长和学完的语句id
                     practice_learn_progress.objects.filter(practice_id=practice_id, practice_chapter_id=chapter_id,
-                                                        user_id_id=user_id).update(
-                        learn_time=time, learn_status='2', practice_contant_id_id=contant_id_id)
+                                                           user_id_id=user_id).update(
+                        learn_time=time, learn_status='2', practice_info_id_id=contant_id_id)
                     result = {'success': True}
                     return HttpResponse(json.dumps(result), content_type="application/json")
                 else:
                     contant_id_id = practice_id_id + '_' + chapter_id_id + '_' + str(contant_num)
                     # 更新学习时长和学完的语句id置为最后一句的id
                     practice_learn_progress.objects.filter(practice_id=practice_id, practice_chapter_id=chapter_id,
-                                                        user_id_id=user_id).update(
-                        learn_time=time, learn_status='1', practice_contant_id_id=contant_id_id)
+                                                           user_id_id=user_id).update(
+                        learn_time=time, learn_status='1', practice_info_id_id=contant_id_id)
                     result = {'success': True}
                     return HttpResponse(json.dumps(result), content_type="application/json")
     return render(request, 'learn.html', locals())
+
+
+"""用户页面跳转学习界面函数，点击相应“继续学习”按钮，将用户页面返回的课程类型、课程id、课程名，传至学习界面，匹配相应导航栏"""
 
 
 def continue_baic_learn1(request):
@@ -1365,7 +1413,8 @@ def continue_baic_learn1(request):
                         if list(select_database_learn_progress)[j]["basic_id"] == list(select_database_course_name)[i][
                             "basic_id"] and list(select_database_learn_progress)[j]["basic_chapter_id"] == \
                                 list(select_database_course_name)[i]["basic_chapter_id"]:
-                            list(select_database_course_name)[i]["learn_status"] = list(select_database_learn_progress)[j][
+                            list(select_database_course_name)[i]["learn_status"] = \
+                            list(select_database_learn_progress)[j][
                                 "learn_status"]
                 # 将拼接后的全量课程表的第一行中basic_chapter_id、basic_chapter_name、learn_status作为progess字典的key-value，
                 # 与basic_id、basic_name一起作为初始值加到页面返回值中
@@ -1374,7 +1423,8 @@ def continue_baic_learn1(request):
                 progress1["basic_chapter_id"] = list(select_database_course_name)[0]["basic_chapter_id"]
                 progress.append(progress1)
                 d["basic_info"].append({"basic_name": list(select_database_course_name)[0]["basic_name"],
-                                        "basic_id": list(select_database_course_name)[0]["basic_id"], "progress": progress})
+                                        "basic_id": list(select_database_course_name)[0]["basic_id"],
+                                        "progress": progress})
                 # 对全量课程表中的第二行开始依此与第一行的basic_id进行比较，如果相同，在第一个progress添加相应字段；
                 # 如果不同，在basic_info中添加新的basic_name并添加相应progress字段
                 # k用于计数basic_info内list的项
@@ -1427,8 +1477,8 @@ def continue_baic_learn1(request):
                                     "practice_id"] and list(select_database_learn_progress)[j]["practice_chapter_id"] == \
                                 list(select_database_course_name)[i]["practice_chapter_id"]:
                             list(select_database_course_name)[i]["learn_status"] = \
-                            list(select_database_learn_progress)[j][
-                                "learn_status"]
+                                list(select_database_learn_progress)[j][
+                                    "learn_status"]
                 # 将拼接后的全量课程表的第一行中practice_chapter_id、practice_chapter_name、learn_status作为progess字典的key-value，
                 # 与practice_id、practice_name一起作为初始值加到页面返回值中
                 progress1["practice_chapter_name"] = list(select_database_course_name)[0]["practice_chapter_name"]
@@ -1475,3 +1525,256 @@ def continue_baic_learn1(request):
 
 
 
+'''工具集展示页面，显示全量的工具集'''
+def tool_display(request):
+    select_tools = user_tool.objects.values('tool_id', 'tool_name', 'tool_describe', 'tool_image',
+                                            'download_num').distinct()
+    t = {'tool_info': []}
+    alltools = []
+    for i in range(len(list(select_tools))):
+        tool = {}
+        tool['tool_id'] = list(select_tools)[i]['tool_id']
+        tool['tool_name'] = list(select_tools)[i]['tool_name']
+        tool['tool_describe'] = list(select_tools)[i]['tool_describe']
+        tool['tool_image'] = list(select_tools)[i]['tool_image']
+        tool['download_num'] = list(select_tools)[i]['download_num']
+        alltools.append(tool)
+    t['tool_info'] = alltools
+    return render(request, "tool_display.html", t)
+
+
+
+'''工具集下载，点击下载功能，下载压缩文件，然后下载次数加1'''
+@login_required
+def tool_download(request, tool_id):
+    if request.method == 'GET':
+        # tool_id = request.GET.get('tool_id')
+        select_tool = user_tool.objects.values('save_dir', 'download_num', 'tool_name').filter(tool_id=tool_id)
+        path = select_tool[0]['save_dir']
+        download_num = select_tool[0]['download_num']
+        download_num = download_num + 1
+        user_tool.objects.filter(tool_id=tool_id).update(download_num=download_num)
+        file = open(path, 'rb')
+        response = FileResponse(file)
+        # response['Content-Type'] = 'application/octet-stream'
+        response['Content-Type'] = 'application/zip'
+        response['Content-Disposition'] = 'attachment;filename=' + select_tool[0]['tool_name'] + '.zip'
+        return response
+
+
+'''显示全量basic课程页面'''
+@login_required
+def basic_course(request):
+    select_basic = course_python_basic.objects.values('basic_name', 'basic_image', 'basic_id').distinct()
+    c = {'course_info': []}
+    allcourses = []
+    for i in range(len(list(select_basic))):
+        course = {}
+        course['course_name'] = list(select_basic)[i]['basic_name']
+        course['course_id'] = list(select_basic)[i]['basic_id']
+        course['course_image'] = list(select_basic)[i]['basic_image']
+        allcourses.append(course)
+    c['course_info'] = allcourses
+    c['course_type'] = 'basic'
+    return render(request, "course_display.html", c)
+
+
+'''显示全量practice课程页面'''
+@login_required
+def practice_course(request):
+    select_practice = course_python_practice.objects.values('practice_name', 'practice_image', 'practice_id').distinct()
+    c = {'course_info': []}
+    allcourses = []
+    for i in range(len(list(select_practice))):
+        course = {}
+        course['course_name'] = list(select_practice)[i]['practice_name']
+        course['course_id'] = list(select_practice)[i]['practice_id']
+        course['course_image'] = list(select_practice)[i]['practice_image']
+        allcourses.append(course)
+    c['course_info'] = allcourses
+    c['course_type'] = 'practice'
+    return render(request, "course_display.html", c)
+
+
+'''点击课程，进入该课程的学习页面，导航栏内只显示该课程信息
+{'basic_info': [{'basic_name': 'python基础', 'basic_id': 1, 'progress': [{'basic_chapter_name': '初识python', 'learn_status': '2', 'basic_chapter_id': 1}, {'basic_chapter_name': '深入python', 'learn_status': 0, 'basic_chapter_id': 2}]}]}
+{'practice_info': [{'practice_name': 'AI入门实战', 'practice_id': 1, 'progress': [{'practice_chapter_name': '分词', 'learn_status': '2', 'practice_chapter_id': 1}]}]}
+'''
+@login_required
+def course(request, course_id, course_type):
+    if request.method == 'GET':
+        if request.session["user"]:
+            # 从session中获取用户名
+            username = request.session["user"]
+            # 通过用户名从user_info获取id
+            select_id = user_info.objects.values('user_id').filter(username=username)
+            user_id = select_id[0]['user_id']
+            if course_type == 'basic':
+                # 根据用户id匹配用户的学习进度
+                select_progress = basic_learn_progress.objects.values("learn_status", "basic_id",
+                                                                      "basic_chapter_id").filter(
+                    user_id=user_id)
+                # 通过课程id获取课程名、章节id、章节名
+                select_course = course_python_basic.objects.values("basic_name", "basic_id", "basic_chapter_id",
+                                                                   "basic_chapter_name").filter(
+                    basic_id=course_id).distinct()
+                d = {"basic_info": []}
+                progress = []
+                progress1 = {}
+                # 将学习进度字段添加到全量课程表中，初始化为0(未学习状态)
+                for i in range(len(list(select_course))):
+                    list(select_course)[i]["learn_status"] = 0
+                # 将用户学习进度表映射至全量课程表中，更新学习状态(1为已完成，2为学习中)
+                for j in range(len(list(select_progress))):
+                    for i in range(len(list(select_course))):
+                        if list(select_progress)[j]["basic_id"] == list(select_course)[i][
+                            "basic_id"] and list(select_progress)[j]["basic_chapter_id"] == \
+                                list(select_course)[i]["basic_chapter_id"]:
+                            list(select_course)[i]["learn_status"] = list(select_progress)[j][
+                                "learn_status"]
+                # 将拼接后的全量课程表的第一行中basic_chapter_id、basic_chapter_name、learn_status作为progess字典的key-value，
+                # 与basic_id、basic_name一起作为初始值加到页面返回值中
+                progress1["basic_chapter_name"] = list(select_course)[0]["basic_chapter_name"]
+                progress1["learn_status"] = list(select_course)[0]["learn_status"]
+                progress1["basic_chapter_id"] = list(select_course)[0]["basic_chapter_id"]
+                progress.append(progress1)
+                d["basic_info"].append({"basic_name": list(select_course)[0]["basic_name"],
+                                        "basic_id": list(select_course)[0]["basic_id"], "progress": progress})
+                # 对全量课程表中的第二行开始依此与第一行的basic_id进行比较，如果相同，在第一个progress添加相应字段；
+                # 如果不同，在basic_info中添加新的basic_name并添加相应progress字段
+                # k用于计数basic_info内list的项
+                k = 0
+                progress3 = []
+                for i in range(1, len(list(select_course))):
+                    if list(select_course)[i]["basic_name"] == d["basic_info"][0 + k]["basic_name"]:
+                        progress2 = {}
+                        progress2["basic_chapter_name"] = list(select_course)[i]["basic_chapter_name"]
+                        progress2["learn_status"] = list(select_course)[i]["learn_status"]
+                        progress2["basic_chapter_id"] = list(select_course)[i]["basic_chapter_id"]
+                        d["basic_info"][k]["progress"].append(progress2)
+                    else:
+                        progress2 = {}
+                        progress2["basic_chapter_name"] = list(select_course)[i]["basic_chapter_name"]
+                        progress2["learn_status"] = list(select_course)[i]["learn_status"]
+                        progress2["basic_chapter_id"] = list(select_course)[i]["basic_chapter_id"]
+                        progress3.append(progress2)
+                        d["basic_info"].append({"basic_name": list(select_course)[i]["basic_name"],
+                                                "basic_id": list(select_course)[i]["basic_id"],
+                                                "progress": progress3})
+                        k += 1
+            else:
+                select_progress = practice_learn_progress.objects.values("learn_status", "practice_id",
+                                                                         "practice_chapter_id").filter(
+                    user_id=user_id)
+                # 通过课程id，获取课程名、章节id、章节名
+                select_course = course_python_practice.objects.values("practice_name", "practice_id",
+                                                                      "practice_chapter_id",
+                                                                      "practice_chapter_name").filter(
+                    practice_id=course_id).distinct()
+                d = {"practice_info": []}
+                progress = []
+                progress1 = {}
+                # 将学习进度字段添加到全量课程表中，初始化为0(未学习状态)
+                for i in range(len(list(select_course))):
+                    list(select_course)[i]["learn_status"] = 0
+                # 将用户学习进度表映射至全量课程表中，更新学习状态(1为已完成，2为学习中)
+                for j in range(len(list(select_progress))):
+                    for i in range(len(list(select_course))):
+                        if list(select_progress)[j]["practice_id"] == \
+                                list(select_course)[i][
+                                    "practice_id"] and list(select_progress)[j]["practice_chapter_id"] == \
+                                list(select_course)[i]["practice_chapter_id"]:
+                            list(select_course)[i]["learn_status"] = \
+                                list(select_progress)[j][
+                                    "learn_status"]
+                # 将拼接后的全量课程表的第一行中practice_chapter_id、practice_chapter_name、learn_status作为progess字典的key-value，
+                # 与practice_id、practice_name一起作为初始值加到页面返回值中
+                progress1["practice_chapter_name"] = list(select_course)[0]["practice_chapter_name"]
+                progress1["learn_status"] = list(select_course)[0]["learn_status"]
+                progress1["practice_chapter_id"] = list(select_course)[0]["practice_chapter_id"]
+                progress.append(progress1)
+                d["practice_info"].append({"practice_name": list(select_course)[0]["practice_name"],
+                                           "practice_id": list(select_course)[0]["practice_id"],
+                                           "progress": progress})
+                # 对全量课程表中的第二行开始依此与第一行的practice_id进行比较，如果相同，在第一个progress添加相应字段；
+                # 如果不同，在practice_info中添加新的practice_name并添加相应progress字段
+                # k用于计数practice_info内list的项
+                k = 0
+                progress3 = []
+                for i in range(1, len(list(select_course))):
+                    if list(select_course)[i]["practice_name"] == d["practice_info"][0 + k][
+                        "practice_name"]:
+                        progress2 = {}
+                        progress2["practice_chapter_name"] = list(select_course)[i][
+                            "practice_chapter_name"]
+                        progress2["learn_status"] = list(select_course)[i]["learn_status"]
+                        progress2["practice_chapter_id"] = list(select_course)[i]["practice_chapter_id"]
+                        d["practice_info"][k]["progress"].append(progress2)
+                    else:
+                        progress2 = {}
+                        progress2["practice_chapter_name"] = list(select_course)[i][
+                            "practice_chapter_name"]
+                        progress2["learn_status"] = list(select_course)[i]["learn_status"]
+                        progress2["practice_chapter_id"] = list(select_course)[i]["practice_chapter_id"]
+                        progress3.append(progress2)
+                        d["practice_info"].append(
+                            {"practice_name": list(select_course)[i]["practice_name"],
+                             "practice_id": list(select_course)[i]["practice_id"],
+                             "progress": progress3})
+                        k += 1
+            return render(request, "learn.html", d)
+
+
+@csrf_exempt
+def forget_passwd1(request):
+    mail_host = "smtp.qq.com"  # SMTP服务器
+    mail_user = "871097566@qq.com"  # 用户名
+    mail_pass = "jdgevzqwrbjibcbh"  # 授权密码，非登录密码
+    sender = "871097566@qq.com"  # 发件人邮箱(最好写全, 不然会失败)
+    if request.method=='POST':
+        if request.POST.get('buttonid', '') == 'emailid':
+            email = request.POST.get('email', '')
+            print(email)
+            select_database_email = user_info.objects.values("username").filter(email=email)
+            if select_database_email:
+                code = "".join(random.sample(string.ascii_letters + string.digits, 8))
+                print(code)
+                select_database_insertcode = user_info.objects.filter(email=email).update(first_name=code)
+                receiver = 'happypython@163.com'  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱   #只能单发
+                title = '快乐学Python重置密码，请勿回复'  # 邮件主题
+                content = select_database_email[0]["username"]+'您好：'+'''
+                本次修改密码验证码为：''' + code + ",有效时间为5分钟，请尽快填写！"  # 内容，格式不能动！！！！！
+                # SMTP服务器  # 登陆       #密码       #发送给谁   #主题     #内容
+                message = MIMEText(content, 'plain', 'utf-8')  # 内容, 格式, 编码
+                message['From'] = mail_user
+                message['To'] = receiver
+                message['Subject'] = Header(title, 'utf-8')
+                try:
+                    server = smtplib.SMTP(mail_host, 25)
+                    server.set_debuglevel(1)  # 启用SSL发信, 端口一般是465
+                    server.login(mail_user, mail_pass)  # 登录验证
+                    server.sendmail(sender, receiver, message.as_string())  # 发送
+                    print("mail has been send successfully.")
+                    server.quit()
+                except smtplib.SMTPException as e:
+                    print(e)
+                return JsonResponse({"result":"success"})
+            if not select_database_email:
+                return JsonResponse({"result":"error"})
+        if request.POST.get('buttonid','')=='passwordid':
+            email = request.POST.get('email', '')
+            select_code = user_info.objects.values("first_name").filter(email=email)
+            print(request.POST.get('identify', ''))
+            print(select_code[0]["first_name"] == request.POST.get('identify', ''))
+            if select_code[0]["first_name"] == request.POST.get('identify', ''):
+                password = request.POST.get('password','')
+                password = make_password(password)
+                user_info.objects.filter(email=email).update(password=password)
+                print("1")
+                return JsonResponse({"result": "success"})
+            else:
+                return JsonResponse({"result": "error"})
+
+
+def forget_passwd(request):
+    return render(request,'login/forget_passwd.html', locals())

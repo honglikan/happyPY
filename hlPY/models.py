@@ -2,6 +2,14 @@ from django.db import models
 from django.utils import timezone
 from django.contrib import admin
 from django.contrib.auth.models import AbstractUser
+import datetime
+import happyPY.settings as settings
+import os
+
+
+File = 'pictures'
+filename='logo.png'
+fpath = os.path.join(File, filename)
 
 class course_python_basic(models.Model):
     basic_id = models.IntegerField(blank=False)#课程ID
@@ -10,6 +18,7 @@ class course_python_basic(models.Model):
     basic_chapter_name = models.CharField(max_length=255,blank=False)#课程章节名称
     basic_contant_id = models.CharField(max_length=255,blank=False, unique=True)#课程内容ID
     basic_contant_info = models.CharField(max_length=255,blank=False)#课程内容信息
+    basic_image = models.CharField(max_length=255,default=fpath)
 
     class Meta:
         unique_together = ("basic_id","basic_chapter_id","basic_contant_id")
@@ -58,13 +67,14 @@ class course_python_practice(models.Model):
     practice_chapter_name = models.CharField(max_length=255,blank=False)#实战课程章节名称
     practice_info_id = models.CharField(max_length=255,blank=False,unique=True)#实战课程内容编号
     practice_info_contant = models.CharField(max_length=255,blank=False)#实战课程内容信息
+    practice_image = models.CharField(max_length=255,default=fpath)
 
     class Meta:
         unique_together = ("practice_id","practice_chapter_id","practice_info_id")
 
 
 class practice_learn_progress(models.Model):
-    progress_id = models.IntegerField(blank=False,primary_key=True)#进度ID
+    progress_id = models.AutoField(blank=False,primary_key=True)#进度ID
     user_id = models.ForeignKey("user_info",to_field="user_id",on_delete="CASCADE") #实战课程学习用户ID
     practice_id = models.IntegerField(blank=False) # 实战课程ID
     practice_chapter_id = models.IntegerField(blank=False)#实战课程章节ID
@@ -79,16 +89,17 @@ class program_env(models.Model):
 
 
 class user_tool(models.Model):
-    tool_id = models.IntegerField(blank=False,primary_key=True)#自制软件ID
+    tool_id = models.AutoField(blank=False,primary_key=True)#自制软件ID
     tool_name = models.CharField(max_length=255,blank=False)#自制软件名称
     tool_describe = models.CharField(max_length=255,blank=False)#软件描述
     tool_owner_id = models.ForeignKey("user_info",to_field="user_id",on_delete="CASCADE",related_name='user_id_user_tool')#软件归属用户ID
-    tool_price = models.IntegerField(blank=False)# 软件售价
-    create_date = models.DateTimeField(blank=False,default=timezone.now)#上传日期
+    tool_price = models.IntegerField(blank=False,default=0)# 软件售价
+    tool_image = models.CharField(max_length=255,default=fpath)
+    create_date = models.DateTimeField(blank=False,default=datetime.datetime.now())#上传日期
     conform_status = models.IntegerField(default=0)#软件审核状态
     save_dir = models.CharField(max_length=255,blank=False)#软件保存路径
-    download_num = models.IntegerField(blank=False)#软件下载次数
-    conform_date = models.DateTimeField(blank=False)#软件审核通过日期
+    download_num = models.IntegerField(blank=False,default=0)#软件下载次数
+    conform_date = models.DateTimeField(blank=False,default=datetime.datetime.now())#软件审核通过日期
 
 
 # class user_tool_order(models.Model):

@@ -47,15 +47,18 @@
             {% if success %}
                <script language="javascript" type="text/javascript">
                     alert("登录成功");
-                    window.location.href="{% url 'user_page' %}";
+                    window.location.href="{% url 'home' %}";
                </script>
             {% endif %}
 		</div>
         <div>
             <a  href="{% url 'register' %}">立即注册？</a> &#12288;&#12288;&#12288;&#12288;&#12288;
             &#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;
-            <a href="{% url 'register' %}">忘记密码？</a>
+            <a href="{% url 'forget_passwd' %}">忘记密码？</a>
         </div>
     </form>
+<div style="text-align:center;margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';">
+
+</div>
   </body>
 </html>

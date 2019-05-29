@@ -1,0 +1,24 @@
+.discription{
+    width: 100%;
+    height: 150px;
+    border: transparent;
+    overflow-y:visible;
+}
+
+.download{
+    margin-top: 10px;
+    font-size:18px;
+}
+
+.comm_span{
+
+    font-size: 18px;
+    margin-left: 10%;
+
+}
+
+
+.fontred{
+    color:red;
+    margin-left: 10px;
+}
